@@ -1,0 +1,171 @@
+$(document).ready(function(){
+
+    const SIGLAS_FUNCOES = ['hid', 'tra', 'int', 'veg', 'rec'];
+
+    function verifica_se_em_trabalho(t, $f){
+        if(t[`data_ini_${$f}`] != null && t[`data_fin_${$f}`] == null) $em_trabalho.push([t, $f]);
+    }
+
+    function verifica_se_em_erro(t, $f){
+        if(t[`data_ini_${$f}`] == null && t[`data_fin_${$f}`] != null) $em_erro.push([t, $f]);
+    }
+
+    function verifica_se_reservado(t, $f){
+        if(t[`data_ini_${$f}`] == null && t[`data_fin_${$f}`] == null) $em_erro.push([t, $f]);
+    }
+
+    function popular_cartas($f, $dados){
+        $(`#div_${$f} #titulo_${$f} .qtd_trabalho`).html(` (${$dados.length})`);
+        $lista =  $("#lista_"+$f);
+        $lista.html('');
+        $dados.forEach(t => {
+            $lista.append(`<li class="fs-5 my-2 text-center">${String(t['mi']).trim()} (${String(t['id']).trim()}) ${t[`data_fin_${$f}`] != null ? t[`data_fin_${$f}`] : ''}</li>`);
+            verifica_se_em_trabalho(t, $f);
+            verifica_se_em_erro(t, $f);
+            verifica_se_reservado(t, $f);
+        });
+    }
+
+    function texto_cartas(carta){
+        return `${String(carta[0]['mi'])} (${carta[0]['id']}) ${String(carta[1]).toUpperCase()}`;
+    }
+
+    function popular_descricao_cartas(array, tipo){
+        if(array.length > 0){
+            $("#cartas_"+tipo).html('');
+            array.forEach(carta => {
+                $("#cartas_"+tipo).append(`<div class="em_trabalho mx-2 mb-2">${texto_cartas(carta)}</div>`);
+            });
+            $("#descricao_"+tipo).fadeIn(500);
+        }
+    }
+
+    function mostrar_botao_controle(){
+        if($em_trabalho.length > 0){
+            if(parseInt($dados_usu['usuario']['nr_funcao']) == 4) $("#botao_finalizar_carta").attr("miid", String($em_trabalho[0][0]['mi_25000']).trim());
+            else if(parseInt($dados_usu['usuario']['nr_funcao']) == 16) $("#botao_finalizar_carta").attr("miid", String($em_trabalho[0][0]['mi']).trim());
+            else $("#botao_finalizar_carta").attr("miid", $em_trabalho[0][0]['id']);
+            $("#botao_finalizar_carta").attr("tipo", $dados_usu['usuario']['nr_funcao']);
+            $("#botao_finalizar_carta").html(`Finalizar ${texto_cartas($em_trabalho[0])}`);
+            $("#botao_pedir_carta").fadeOut(100);
+            $("#botao_finalizar_carta").fadeIn(500);
+        }
+        else {
+            $("#botao_pedir_carta").attr("idusu", $dados_usu['usuario']['id']);
+            $("#botao_pedir_carta").attr("tipo", $dados_usu['usuario']['nr_funcao']);
+            $("#botao_pedir_carta").html(`Pedir ${FUNCOES[$dados_usu['usuario']['nr_funcao']]}`);
+            $("#botao_finalizar_carta").fadeOut(100);
+            $("#botao_pedir_carta").fadeIn(500);
+        }
+    }
+
+    function get_dados(){
+
+        $id_usu = parseInt($("#div-controle-usuario").attr("id_usuario"));
+
+        //Opção cadastrar
+        if($id_usu == 1 || $id_usu == 2 ){
+            console.log("Usuário ADMINISTRADOR!");
+            $("#titulo_sapoperador").css("cursor", "pointer");
+            $("#titulo_sapoperador").click(function(){
+                showModalLogin('ModalCadastrar');
+            });
+        }
+
+        if($id_usu > 0){
+            $.get('conexao_get_dados.php', { usuario: String($id_usu) }, 
+                function(dados){
+                    $dados_usu = JSON.parse(dados);
+                    console.log('dados:', $dados_usu);
+                    $("#nome_usuario").html($dados_usu['usuario']['nome']);
+                    $("#funcao_usuario").html($dados_usu['usuario']['funcao']);
+                    $("#imagem-usuario").attr("src", `img/usuarios/${$dados_usu['usuario']['id']}.jpg`);
+                    const FUNCOES = $dados_usu['funcoes'].reduce((acc, item) => {
+                        acc[item.nr_funcao] = item.funcao;
+                        return acc;
+                    }, {});
+                    console.log('funcoes', FUNCOES);
+                    $em_trabalho = [];
+                    $em_reserva = [];
+                    $em_erro = [];
+                    SIGLAS_FUNCOES.forEach(sigla => {
+                        popular_cartas(sigla, $dados_usu[sigla]);
+                    });
+                    if($em_trabalho.length > 1){
+                        $em_reserva = $em_trabalho.slice(1).concat($em_reserva);
+                        $em_trabalho = [$em_trabalho[0]];
+                    }
+                    console.log('em_trabalho', $em_trabalho);
+                    console.log('em_erro', $em_erro);
+                    console.log('em_reserva', $em_reserva);
+                    //popular_descricao_cartas($em_trabalho, "em_trabalho");
+                    popular_descricao_cartas($em_reserva, "em_reserva");
+                    popular_descricao_cartas($em_erro, "em_erro");
+                    mostrar_botao_controle();
+                }
+            );
+        }
+        else showModalLogin('ModalLogin');
+    }
+
+    function showModalLogin(idmodal) {
+        var myModal = new bootstrap.Modal(document.getElementById(idmodal), {
+            keyboard: false
+        });
+        myModal.show();
+    }
+
+    const alertPlaceholder = document.getElementById('div-alertas')
+        const AddAlert = (message, type) => {
+            //success
+        const wrapper = document.createElement('div')
+        wrapper.innerHTML = [
+            `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+            `   <div>${message}</div>`,
+            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+            '</div>'
+        ].join('')
+        alertPlaceholder.append(wrapper)
+    }
+
+    get_dados();
+
+    //EVENTOS
+
+    $("#login").click(function(){
+        showModalLogin('ModalLogin');
+    });
+
+    $("#botao_pedir_carta").click(function(){
+        $.post('conexao_pedir_carta.php', {
+            usuario: $(this).attr("idusu"),
+            funcao: $(this).attr("tipo")
+            }, 
+            function(resp){
+                console.log(resp);
+                if(JSON.parse(resp) && JSON.parse(resp)[0]['id'] != undefined &&  parseInt(JSON.parse(resp)[0]['id']) > 0){
+                    AddAlert(`Unidade de trabalho pedida com sucesso! ${JSON.parse(resp)[0]}`, 'success');
+                    setTimeout(function() { location.reload(); }, 2000);
+                }
+                else AddAlert(`Erro ao pedir unidade de trabalho! ${$j}`, 'danger');
+            }
+        );
+    });
+
+    $("#botao_finalizar_carta").click(function(){
+        $.post('conexao_finalizar_carta.php', {
+            id: $(this).attr("miid"),
+            funcao: $(this).attr("tipo")
+            }, 
+            function(resp){
+                console.log(resp);
+                if(JSON.parse(resp) && JSON.parse(resp)[0]['id'] != undefined &&  parseInt(JSON.parse(resp)[0]['id']) > 0){
+                    AddAlert(`Unidade de trabalho finalizada com sucesso! ${$j}`, 'success');
+                    //setTimeout(function() { location.reload(); }, 2000);
+                }
+                else AddAlert(`Erro ao finalizar unidade de trabalho! ${$j}`, 'danger');
+            }
+        );
+    });
+
+});

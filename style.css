@@ -1,0 +1,112 @@
+.container-custom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    height: 100vh;
+}
+.content {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+.row-custom {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+.col-custom {
+    flex: 1;
+    margin: 0 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#imagem-usuario {
+    position: relative;
+    top: -60px;
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    background-color: #333;
+    border: solid 8px #333;
+}
+#div-controle-usuario{
+    position: relative;
+    top: -70px;
+}
+#lista_content ul {
+    max-height: 100%;
+    overflow-y: scroll;
+    width: 100%;
+}
+#menu-left{
+    min-width: 550px;
+    max-width: 550px;
+    width: 500px;
+}
+
+.descricao_carta {
+    display: none;
+}
+
+#cartas_em_trabalho, #cartas_em_reserva, #cartas_em_erro {
+    min-height: 100px;
+    max-height: 200px;
+    min-width: 300px;
+    overflow-y: scroll;
+}
+
+#botao_finalizar_carta, #botao_pedir_carta{
+    display: none;
+}
+
+#div-alertas{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.botao-controle{
+    border-radius: 15px;
+    border: solid 1px #ddd;
+}
+
+body {
+    background: linear-gradient(to bottom, #f5f5f5, #cccccc);
+}
+
+/* Estilos para navegadores WebKit (Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #1c1c1c;  /* Cor do trilho */
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #06beb6, #48b1bf); /* Gradiente do polegar */
+    border-radius: 10px;
+    border: 2px solid #1c1c1c; /* Borda para criar um efeito de espaço */
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #48b1bf, #06beb6); /* Gradiente invertido no hover */
+  }
+  
+  /* Estilos para navegadores Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #222 #ccc;
+  }
+
+  #cabecalho {
+    min-height: 80px;
+    min-width: 500px;
+  }
