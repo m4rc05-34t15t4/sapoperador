@@ -40,7 +40,7 @@ $(document).ready(function(){
         }
     }
 
-    function mostrar_botao_controle(){
+    function mostrar_botao_controle(FUNCOES){
         if($em_trabalho.length > 0){
             if(parseInt($dados_usu['usuario']['nr_funcao']) == 4) $("#botao_finalizar_carta").attr("miid", String($em_trabalho[0][0]['mi_25000']).trim());
             else if(parseInt($dados_usu['usuario']['nr_funcao']) == 16) $("#botao_finalizar_carta").attr("miid", String($em_trabalho[0][0]['mi']).trim());
@@ -67,6 +67,7 @@ $(document).ready(function(){
         if($id_usu == 1 || $id_usu == 2 ){
             console.log("Usuário ADMINISTRADOR!");
             $("#titulo_sapoperador").css("cursor", "pointer");
+            $("#titulo_sapoperador").attr("title", "Clique para Cadastrar Novo usuário");
             $("#titulo_sapoperador").click(function(){
                 showModalLogin('ModalCadastrar');
             });
@@ -101,7 +102,7 @@ $(document).ready(function(){
                     //popular_descricao_cartas($em_trabalho, "em_trabalho");
                     popular_descricao_cartas($em_reserva, "em_reserva");
                     popular_descricao_cartas($em_erro, "em_erro");
-                    mostrar_botao_controle();
+                    mostrar_botao_controle(FUNCOES);
                 }
             );
         }
@@ -110,7 +111,8 @@ $(document).ready(function(){
 
     function showModalLogin(idmodal) {
         var myModal = new bootstrap.Modal(document.getElementById(idmodal), {
-            keyboard: false
+            keyboard: false,
+            backdrop: 'static'
         });
         myModal.show();
     }
@@ -128,9 +130,37 @@ $(document).ready(function(){
         alertPlaceholder.append(wrapper)
     }
 
+    function uploadImage() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        if (!file) {
+            AddAlert(`Selecione uma imagem!`, 'warning');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('avatar', file);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'upload_img.php', true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                AddAlert(`Imagem carregada com sucesso!`, 'success');
+                setTimeout(function() { location.reload(); }, 2000);
+            } else AddAlert(`Erro ao carregar imagem!`, 'danger');
+        };
+        xhr.send(formData);
+    }
+
     get_dados();
 
     //EVENTOS
+
+    $("#imagem-usuario").click(function() {
+        $('#fileInput').click();
+    });
+
+    $("#fileInput").change(function(){
+        uploadImage();
+    });
 
     $("#login").click(function(){
         showModalLogin('ModalLogin');

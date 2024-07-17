@@ -6,11 +6,12 @@
     height: 100vh;
 }
 .content {
-    width: 80%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     height: 100%;
+    padding: 0 50px 0 50px;
 }
 .row-custom {
     width: 100%;
@@ -33,6 +34,8 @@
     height: 200px;
     background-color: #333;
     border: solid 8px #333;
+    object-fit: cover;
+    cursor: pointer;
 }
 #div-controle-usuario{
     position: relative;
@@ -83,30 +86,46 @@ body {
 ::-webkit-scrollbar {
     width: 12px;
     height: 12px;
-  }
-  
-  ::-webkit-scrollbar-track {
+}
+
+::-webkit-scrollbar-track {
     background: #1c1c1c;  /* Cor do trilho */
     border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb {
+}
+
+::-webkit-scrollbar-thumb {
     background: linear-gradient(45deg, #06beb6, #48b1bf); /* Gradiente do polegar */
     border-radius: 10px;
     border: 2px solid #1c1c1c; /* Borda para criar um efeito de espaço */
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
+}
+
+::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(45deg, #48b1bf, #06beb6); /* Gradiente invertido no hover */
-  }
-  
-  /* Estilos para navegadores Firefox */
-  * {
+}
+
+/* Estilos para navegadores Firefox */
+* {
     scrollbar-width: thin;
     scrollbar-color: #222 #ccc;
-  }
+}
 
-  #cabecalho {
+#cabecalho {
     min-height: 80px;
     min-width: 500px;
-  }
+}
+
+#cabecalho a {
+    text-decoration: none;
+    color: #999
+}
+#cabecalho a:hover {
+    color: #09F;
+}
+
+#ModalLogin{
+    background-color: black;
+}
+
+#fileInput{
+    display: none;
+}

@@ -6,8 +6,8 @@ session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $idt = $_POST['idt'];
-    $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
-    $senha = $_POST['senha'];
+    $senha = base64_encode($_POST['senha']);
+    //$senha = $_POST['senha'];
     
     try {
         $sql = "SELECT * FROM USUARIOS WHERE idtmil = '$idt' AND senha = '$senha';";

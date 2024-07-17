@@ -16,15 +16,16 @@
   <div class="container-custom">
     <div id="cabecalho" class="d-flex row flex-wrap container-fluid bg-dark text-white justify-content-between mb-3">
       <div class="fs-5 d-flex flex-rown justify-content-end">
-        <h1 id="titulo_sapoperador" class="m-0 p-2 w-auto text-secondary">SAPOperador</h1>
+        <h1 id="titulo_sapoperador" class="m-0 p-2 w-auto text-secondary">FORPRON 2024 - SAPOperador</h1>
         <?php echo ($id_sessao != "0") ? '<a id="logout" class="mx-3 pt-4" href="logout.php">Sair</a>' : '<a id="login" class="mx-3 pt-4" href="">Login</a>'; ?>
       </div>
     </div>
     <div class="content">
-      <div id="menu_head" class="d-flex flex-rown w-100 justify-content-around align-items-start">
+      <div id="menu_head" class="d-flex flex-rown w-100 justify-content-between align-items-start">
         
         <div id="menu-left" class="d-flex flex-rown">
           <img id="imagem-usuario" src="user-image.jpg" alt="" class="img-fluid img-center mb-4" />
+          <input type="file" id="fileInput">
           <div id="div-controle-usuario" id_usuario="<?php echo $id_sessao; ?>">
             <h1 id="nome_usuario" class="ms-2 text-white">Nome do Usuário</h1>
             <h2 id="funcao_usuario" class="ms-4 text-primary">Função do Usuário</h2>
@@ -81,11 +82,11 @@
 
   <!-- Modal -->
   <div class="modal fade" id="ModalLogin" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Login</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title fs-3 w-100 text-center" id="exampleModalLabel">Login - SAPOperador</h1>
+                <!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
             </div>
             <div class="modal-body">
               <form action="conexao_login.php" method="POST">
@@ -97,7 +98,7 @@
                       <label for="inputPassword" class="form-label">Senha</label>
                       <input type="password" class="form-control" id="inputPassword" name="senha" placeholder="Digite sua senha" required>
                   </div>
-                  <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                  <button type="submit" class="btn btn-primary w-100 fs-3">Entrar</button>
               </form>
             </div>
         </div>
@@ -105,10 +106,10 @@
   </div>
 
   <div class="modal fade" id="ModalCadastrar" tabindex="-1" aria-labelledby="cadastrarModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="cadastrarModalLabel">Cadastrar</h1>
+                <h1 class="modal-title fs-3" id="cadastrarModalLabel">Cadastrar</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -118,19 +119,29 @@
 
                 <label for="cadastrar" class="form-label">Função:</label>
                 <select id="funcao" name="funcao" class="form-select mb-2" required>
-                    <option value="1">Opção 1</option>
-                    <option value="2">Opção 2</option>
-                    <option value="4">Opção 3</option>
-                    <option value="8">Opção 4</option>
-                    <option value="16">Opção 4</option>
+                    <option value="1">Hidrografia</option>
+                    <option value="2">Rodovias</option>
+                    <option value="4">Interseções</option>
+                    <option value="8">Vegetação</option>
+                    <option value="16">Reclassificação</option>
                 </select>
 
                 <label for="cadastrar" class="form-label">Posto / Graduação:</label>
                 <select id="post_grad" name="post_grad"  class="form-select mb-2" required>
-                    <option value="grad1">Graduação 1</option>
-                    <option value="grad2">Graduação 2</option>
-                    <option value="grad3">Graduação 3</option>
-                    <option value="grad4">Graduação 4</option>
+                    <option value="Gen">Gen</option>
+                    <option value="Cel">Cel</option>
+                    <option value="TCel">TCel</option>
+                    <option value="Maj">Maj</option>
+                    <option value="Cap">Cap</option>
+                    <option value="1º Ten">1º Ten</option>
+                    <option value="2º Ten">2º Ten</option>
+                    <option value="ST">ST</option>
+                    <option value="1º Sgt">1º Sgt</option>
+                    <option value="2º Sgt">2º Sgt</option>
+                    <option value="3º Sgt">3º Sgt</option>
+                    <option value="Cb">Cb</option>
+                    <option value="Sd">Sd</option>
+                    <option value="SC">SC</option>
                 </select>
 
                 <label for="cadastrar" class="form-label">Identidade militar:</label>
@@ -138,6 +149,9 @@
 
                 <label for="cadastrar" class="form-label">Senha:</label>
                 <input type="password" id="senha" name="senha" class="form-control mb-2" required>
+
+                <label for="cadastrar" class="form-label">Repetir Senha:</label>
+                <input type="password" id="repetir_senha" name="repetir_senha" class="form-control mb-2" required>
 
                 <button type="submit" class="btn btn-primary w-100 mt-3 fs-3">Cadastrar</button>
               </form>
