@@ -2,7 +2,7 @@
 
 require_once 'conexao.php';
 
-session_start();
+if ( session_status() !== PHP_SESSION_ACTIVE ) session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $idt = $_POST['idt'];
@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (count($resp) > 0 && isset($resp[0]['id'])) {
             //var_dump($resp);
             // Senha verificada, iniciar sessão
-            $_SESSION['id'] = $resp[0]['id'];
+            $_SESSION['SAPO']['id'] = $resp[0]['id'];
             echo "Login bem-sucedido!";
             header("Refresh: 1; URL=index.php");
         } else {
@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (PDOException $e) {
         // Tratar erros de conexão
         echo "Erro de conexão: " . $e->getMessage();
+        $_SESSION['SAPO']['id'] = '0';
         header("Refresh: 5; URL=index.php");
     }
 }

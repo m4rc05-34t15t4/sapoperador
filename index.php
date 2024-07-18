@@ -1,7 +1,7 @@
 <?php 
-  session_start();
+  if ( session_status() !== PHP_SESSION_ACTIVE ) session_start();
   $id_sessao = "0";
-  if( isset($_SESSION['id']) ) $id_sessao = $_SESSION['id'];
+  if( isset($_SESSION['SAPO']['id']) ) $id_sessao = $_SESSION['SAPO']['id'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,7 +24,7 @@
       <div id="menu_head" class="d-flex flex-rown w-100 justify-content-between align-items-start">
         
         <div id="menu-left" class="d-flex flex-rown">
-          <img id="imagem-usuario" src="user-image.jpg" alt="" class="img-fluid img-center mb-4" />
+          <img id="imagem-usuario" src="<?php echo $id_sessao; ?>.jpg" alt="" class="img-fluid img-center mb-4" />
           <input type="file" id="fileInput">
           <div id="div-controle-usuario" id_usuario="<?php echo $id_sessao; ?>">
             <h1 id="nome_usuario" class="ms-2 text-white">Nome do Usuário</h1>
@@ -55,23 +55,23 @@
         </div>
 
         <div id="div_tra" class="col col-custom">
-          <h3 id="titulo_tra">Rodovias<span class="qtd_trabalho"></span></h3>
-          <ul class="list-group"></ul>
+          <h3 id="titulo_tra">Transporte<span class="qtd_trabalho"></span></h3>
+          <ul id="lista_tra" class="list-group"></ul>
         </div>
 
         <div id="div_int" class="col col-custom">
           <h3 id="titulo_int">Interseções<span class="qtd_trabalho"></span></h3>
-          <ul class="list-group"></ul>
+          <ul id="lista_int" class="list-group"></ul>
         </div>
 
         <div id="div_veg" class="col col-custom">
           <h3 id="titulo_veg">Vegetação<span class="qtd_trabalho"></span></h3>
-          <ul class="list-group"></ul>
+          <ul id="lista_veg" class="list-group"></ul>
         </div>
 
         <div id="div_rec" class="col col-custom">
           <h3 id="titulo_rec">Reclassificação<span class="qtd_trabalho"></span></h3>
-          <ul class="list-group"></ul>
+          <ul id="lista_rec" class="list-group"></ul>
         </div>
 
       </div>
@@ -109,7 +109,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-3" id="cadastrarModalLabel">Cadastrar</h1>
+                <h1 class="modal-title fs-3" id="cadastrarModalLabel">Cadastrar - SAPOperador</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

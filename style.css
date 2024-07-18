@@ -36,13 +36,15 @@
     border: solid 8px #333;
     object-fit: cover;
     cursor: pointer;
+    background-image: url('img/usuario.png');
+    background-position: center;
 }
 #div-controle-usuario{
     position: relative;
     top: -70px;
 }
 #lista_content ul {
-    max-height: 100%;
+    max-height: calc(100vh - 500px);
     overflow-y: scroll;
     width: 100%;
 }

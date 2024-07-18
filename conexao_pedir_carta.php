@@ -14,43 +14,51 @@
         $funcao = strval($_POST["funcao"]);
         $tipo = "";
         $filtro = "";
+        $order = "prioridade, mi";
         $atributo = "id";
+        $else = "-1";
         switch($funcao){
             case "1":
                 $tipo = "hid";
+                $order = "prioridade, op_tra DESC, mi";
                 break;
             case "2":
                 $tipo = "tra";
+                $order = "prioridade, op_hid DESC, mi";
                 break;
             case "4":
                 $tipo = "int";
                 $atributo = "mi_25000";
+                $order = "prioridade, op_veg DESC, mi";
+                $else = "'-1'";
                 break;
             case "8":
                 $tipo = "veg";
+                $order = "prioridade, op_int DESC, mi";
                 break;
             case "16":
                 $tipo = "rec";
                 $atributo = "mi";
+                $else = "'-1'";
                 break;
         }
 
-        if($funcao == "4" || $funcao == "8" || $funcao == "16") $filtro = " AND data_fin_hid NOT ISNULL AND data_fin_tra NOT ISNULL";
-        if($funcao == "16") $filtro .= " AND data_fin_int NOT ISNULL AND data_fin_veg NOT ISNULL";
+        if($funcao == "4" || $funcao == "8" || $funcao == "16") $filtro = " AND NOT data_fin_hid ISNULL AND NOT data_fin_tra ISNULL";
+        if($funcao == "16") $filtro .= " AND NOT data_fin_int ISNULL AND NOT data_fin_veg ISNULL";
 
         //QUERY para Pedir carta 
         $sql = "
             UPDATE public.aux_moldura_a SET op_$tipo = $usuario, data_ini_$tipo = '$data' WHERE $atributo =  
                 CASE
-                    WHEN (SELECT $atributo FROM public.aux_moldura_a WHERE op_$tipo = $usuario AND data_ini_$tipo ISNULL AND data_fin_$tipo ISNULL $filtro ORDER BY prioridade, mi LIMIT 1) > 0
-                    THEN (SELECT $atributo FROM public.aux_moldura_a WHERE op_$tipo = $usuario AND data_ini_$tipo ISNULL AND data_fin_$tipo ISNULL $filtro ORDER BY prioridade, mi LIMIT 1)
+                    WHEN (SELECT COUNT($atributo) FROM public.aux_moldura_a WHERE op_$tipo = $usuario AND data_ini_$tipo ISNULL AND data_fin_$tipo ISNULL $filtro) > 0
+                    THEN (SELECT $atributo FROM public.aux_moldura_a WHERE op_$tipo = $usuario AND data_ini_$tipo ISNULL AND data_fin_$tipo ISNULL $filtro ORDER BY $order LIMIT 1)
                     
-                    WHEN (SELECT $atributo FROM public.aux_moldura_a WHERE op_$tipo ISNULL AND data_ini_$tipo ISNULL AND data_fin_$tipo ISNULL $filtro ORDER BY prioridade, mi LIMIT 1) > 0
-                    THEN (SELECT $atributo FROM public.aux_moldura_a WHERE op_$tipo ISNULL AND data_ini_$tipo ISNULL AND data_fin_$tipo ISNULL $filtro ORDER BY prioridade, mi LIMIT 1)
+                    WHEN (SELECT COUNT($atributo) FROM public.aux_moldura_a WHERE op_$tipo ISNULL AND data_ini_$tipo ISNULL AND data_fin_$tipo ISNULL $filtro) > 0
+                    THEN (SELECT $atributo FROM public.aux_moldura_a WHERE op_$tipo ISNULL AND data_ini_$tipo ISNULL AND data_fin_$tipo ISNULL $filtro ORDER BY $order LIMIT 1)
                     
-                    ELSE -1
+                    ELSE $else
                 END
-            RETURNING $atributo, '$funcao' AS FUNCAO;
+            RETURNING $atributo AS ID, '$funcao' AS FUNCAO;
         ";
 
         //echo $sql; 

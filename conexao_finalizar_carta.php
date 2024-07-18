@@ -24,6 +24,7 @@
             case "4":
                 $tipo = "int";
                 $atributo = "mi_25000";
+                $id = "'".$id."'";
                 break;
             case "8":
                 $tipo = "veg";
@@ -31,11 +32,12 @@
             case "16":
                 $tipo = "rec";
                 $atributo = "mi";
+                $id = "'".$id."'";
                 break;
         }
 
         //QUERY para Pedir carta 
-        $sql = "UPDATE public.aux_moldura_a SET data_fin_$tipo = '$data' WHERE $atributo = $id RETURNING $atributo, '$funcao' AS FUNCAO;";
+        $sql = "UPDATE public.aux_moldura_a SET data_fin_$tipo = '$data' WHERE $atributo = $id RETURNING $atributo AS ID, '$funcao' AS FUNCAO;";
 
         //echo $sql; 
 

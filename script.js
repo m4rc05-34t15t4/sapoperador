@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-    const SIGLAS_FUNCOES = ['hid', 'tra', 'int', 'veg', 'rec'];
+    const SIGLAS_FUNCOES = { 'hid' : 1, 'tra' : 2, 'int' : 4, 'veg' : 8, 'rec' : 16 };
 
     function verifica_se_em_trabalho(t, $f){
         if(t[`data_ini_${$f}`] != null && t[`data_fin_${$f}`] == null) $em_trabalho.push([t, $f]);
@@ -19,7 +19,7 @@ $(document).ready(function(){
         $lista =  $("#lista_"+$f);
         $lista.html('');
         $dados.forEach(t => {
-            $lista.append(`<li class="fs-5 my-2 text-center">${String(t['mi']).trim()} (${String(t['id']).trim()}) ${t[`data_fin_${$f}`] != null ? t[`data_fin_${$f}`] : ''}</li>`);
+            $lista.append(`<li class="fs-5 my-2 text-center">${String(t['mi']).trim()} (${String(t['id']).trim()}) ${t[`data_fin_${$f}`] != null ? t[`data_fin_${$f}`].slice(2,16) : ''}</li>`);
             verifica_se_em_trabalho(t, $f);
             verifica_se_em_erro(t, $f);
             verifica_se_reservado(t, $f);
@@ -34,6 +34,7 @@ $(document).ready(function(){
         if(array.length > 0){
             $("#cartas_"+tipo).html('');
             array.forEach(carta => {
+                //if( ( ($em_trabalho.length > 0 && carta[0]['mi'] != $em_trabalho[0]['mi']) || $em_trabalho.length == 0) && (tipo == 'int' || tipo == 'rec'))
                 $("#cartas_"+tipo).append(`<div class="em_trabalho mx-2 mb-2">${texto_cartas(carta)}</div>`);
             });
             $("#descricao_"+tipo).fadeIn(500);
@@ -42,10 +43,11 @@ $(document).ready(function(){
 
     function mostrar_botao_controle(FUNCOES){
         if($em_trabalho.length > 0){
-            if(parseInt($dados_usu['usuario']['nr_funcao']) == 4) $("#botao_finalizar_carta").attr("miid", String($em_trabalho[0][0]['mi_25000']).trim());
-            else if(parseInt($dados_usu['usuario']['nr_funcao']) == 16) $("#botao_finalizar_carta").attr("miid", String($em_trabalho[0][0]['mi']).trim());
+            $id_funcao_em_trabalho = SIGLAS_FUNCOES[$em_trabalho[0][1]];
+            if(parseInt($id_funcao_em_trabalho) == 4) $("#botao_finalizar_carta").attr("miid", String($em_trabalho[0][0]['mi_25000']).trim());
+            else if(parseInt($id_funcao_em_trabalho) == 16) $("#botao_finalizar_carta").attr("miid", String($em_trabalho[0][0]['mi']).trim());
             else $("#botao_finalizar_carta").attr("miid", $em_trabalho[0][0]['id']);
-            $("#botao_finalizar_carta").attr("tipo", $dados_usu['usuario']['nr_funcao']);
+            $("#botao_finalizar_carta").attr("tipo", $id_funcao_em_trabalho);
             $("#botao_finalizar_carta").html(`Finalizar ${texto_cartas($em_trabalho[0])}`);
             $("#botao_pedir_carta").fadeOut(100);
             $("#botao_finalizar_carta").fadeIn(500);
@@ -89,7 +91,7 @@ $(document).ready(function(){
                     $em_trabalho = [];
                     $em_reserva = [];
                     $em_erro = [];
-                    SIGLAS_FUNCOES.forEach(sigla => {
+                    Object.keys(SIGLAS_FUNCOES).forEach(sigla => {
                         popular_cartas(sigla, $dados_usu[sigla]);
                     });
                     if($em_trabalho.length > 1){
@@ -99,8 +101,8 @@ $(document).ready(function(){
                     console.log('em_trabalho', $em_trabalho);
                     console.log('em_erro', $em_erro);
                     console.log('em_reserva', $em_reserva);
-                    //popular_descricao_cartas($em_trabalho, "em_trabalho");
-                    popular_descricao_cartas($em_reserva, "em_reserva");
+                    popular_descricao_cartas($em_trabalho, "em_trabalho");
+                    //popular_descricao_cartas($em_reserva, "em_reserva");
                     popular_descricao_cartas($em_erro, "em_erro");
                     mostrar_botao_controle(FUNCOES);
                 }
@@ -173,11 +175,13 @@ $(document).ready(function(){
             }, 
             function(resp){
                 console.log(resp);
-                if(JSON.parse(resp) && JSON.parse(resp)[0]['id'] != undefined &&  parseInt(JSON.parse(resp)[0]['id']) > 0){
-                    AddAlert(`Unidade de trabalho pedida com sucesso! ${JSON.parse(resp)[0]}`, 'success');
+                $j = JSON.parse(resp)[0] != undefined ? JSON.parse(resp)[0] : {};
+                if($j['id'] != undefined &&  parseInt($j['id']) > 0){
+                    AddAlert(`Unidade de trabalho pedida com sucesso! ${$j['id']}`, 'success');
                     setTimeout(function() { location.reload(); }, 2000);
                 }
-                else AddAlert(`Erro ao pedir unidade de trabalho! ${$j}`, 'danger');
+                else if(resp == 1) AddAlert(`Não há unidade de trabalho disponível!`, 'warning');
+                else AddAlert(`Erro ao pedir unidade de trabalho! ${String($j)}`, 'danger');
             }
         );
     });
@@ -189,11 +193,12 @@ $(document).ready(function(){
             }, 
             function(resp){
                 console.log(resp);
-                if(JSON.parse(resp) && JSON.parse(resp)[0]['id'] != undefined &&  parseInt(JSON.parse(resp)[0]['id']) > 0){
-                    AddAlert(`Unidade de trabalho finalizada com sucesso! ${$j}`, 'success');
-                    //setTimeout(function() { location.reload(); }, 2000);
+                $j = JSON.parse(resp)[0] != undefined ? JSON.parse(resp)[0] : {};
+                if($j['id'] != undefined &&  parseInt($j['id']) > 0){
+                    AddAlert(`Unidade de trabalho finalizada com sucesso! ${$j['id']}`, 'success');
+                    setTimeout(function() { location.reload(); }, 2000);
                 }
-                else AddAlert(`Erro ao finalizar unidade de trabalho! ${$j}`, 'danger');
+                else AddAlert(`Erro ao finalizar unidade de trabalho! ${String($j)}`, 'danger');
             }
         );
     });
