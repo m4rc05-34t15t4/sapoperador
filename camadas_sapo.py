@@ -1,10 +1,10 @@
 import psycopg2
 import base64
-from qgis.core import (
-    QgsVectorLayer, QgsProject, QgsDataSourceUri, QgsLayerTreeLayer, QgsWkbTypes, QgsGeometry
-)
+import pickle
+import os
+from qgis.core import (QgsVectorLayer, QgsProject, QgsDataSourceUri, QgsLayerTreeLayer, QgsWkbTypes, QgsGeometry)
 from qgis.utils import iface
-from PyQt5.QtWidgets import QInputDialog
+#from PyQt5.QtWidgets import QInputDialog
 
 class InputDialog(QDialog):
     def __init__(self):
@@ -72,7 +72,7 @@ def get_connection(db_name):
             user=DB_USER,
             password=DB_PASSWORD
         )
-        print(f"Conexão com o banco de dados {db_name} estabelecida.")
+        #print(f"Conexão com o banco de dados {db_name} estabelecida.")
         return conn
     except Exception as e:
         print(f"Erro ao conectar ao banco de dados {db_name}: {e}")
@@ -157,17 +157,31 @@ def get_layers_with_features(geom_wkt):
     except Exception as e:
         print(f"Erro ao obter camadas com feições: {e}")
         return []
+    
+def carregar_camadas(layers, n_group, main_group, subgroups, g_prefix=False):
+    t_geom_group = {"Pontos" : 'points', "Linhas" : 'lines', "Polígonos" : 'polygons'}
+    tgg = t_geom_group[n_group]
+    list_group = None
+    # Carregar as camadas de pontos
+    for layer in layers:
+        QgsProject.instance().addMapLayer(layer, False)
+        group_prefix = layer.name().split('_')[0] if g_prefix else ''
 
-def load_classes_layers(geom_wkt, main_group):
+        if list_group is None:
+            list_group = main_group.addGroup(n_group)
+        if group_prefix not in subgroups[tgg]:
+            subgroups[tgg][group_prefix] = list_group.addGroup(group_prefix)
+
+        subgroups[tgg][group_prefix].insertChildNode(-1, QgsLayerTreeLayer(layer))
+        layer.setName(layer.name().replace(SCHEMA + ".", ""))
+        #print(f"Camada {layer.name()} carregada no grupo '{n_group}', subgrupo '{group_prefix}'.")
+
+def load_classes_layers(geom_wkt, main_group, g_prefix = False):
     subgroups = {
         "points": {},
         "lines": {},
         "polygons": {}
     }
-
-    points_group = None
-    lines_group = None
-    polygons_group = None
 
     point_layers = []
     line_layers = []
@@ -220,43 +234,9 @@ def load_classes_layers(geom_wkt, main_group):
     connection.close()
 
     # Carregar as camadas de pontos
-    for layer in point_layers:
-        QgsProject.instance().addMapLayer(layer, False)
-        group_prefix = layer.name().split('_')[0]
-
-        if points_group is None:
-            points_group = main_group.addGroup("Pontos")
-        if group_prefix not in subgroups["points"]:
-            subgroups["points"][group_prefix] = points_group.addGroup(group_prefix)
-        subgroups["points"][group_prefix].insertChildNode(-1, QgsLayerTreeLayer(layer))
-        layer.setName(layer.name().replace(SCHEMA + ".", ""))
-        print(f"Camada {layer.name()} carregada no grupo Pontos, subgrupo {group_prefix}.")
-
-    # Carregar as camadas de linhas
-    for layer in line_layers:
-        QgsProject.instance().addMapLayer(layer, False)
-        group_prefix = layer.name().split('_')[0]
-
-        if lines_group is None:
-            lines_group = main_group.addGroup("Linhas")
-        if group_prefix not in subgroups["lines"]:
-            subgroups["lines"][group_prefix] = lines_group.addGroup(group_prefix)
-        subgroups["lines"][group_prefix].insertChildNode(-1, QgsLayerTreeLayer(layer))
-        layer.setName(layer.name().replace(SCHEMA + ".", ""))
-        print(f"Camada {layer.name()} carregada no grupo Linhas, subgrupo {group_prefix}.")
-
-    # Carregar as camadas de polígonos
-    for layer in polygon_layers:
-        QgsProject.instance().addMapLayer(layer, False)
-        group_prefix = layer.name().split('_')[0]
-
-        if polygons_group is None:
-            polygons_group = main_group.addGroup("Polígonos")
-        if group_prefix not in subgroups["polygons"]:
-            subgroups["polygons"][group_prefix] = polygons_group.addGroup(group_prefix)
-        subgroups["polygons"][group_prefix].insertChildNode(-1, QgsLayerTreeLayer(layer))
-        layer.setName(layer.name().replace(SCHEMA + ".", ""))
-        print(f"Camada {layer.name()} carregada no grupo Polígonos, subgrupo {group_prefix}.")
+    carregar_camadas(point_layers, "Pontos", main_group, subgroups)
+    carregar_camadas(line_layers, "Linhas", main_group, subgroups)
+    carregar_camadas(polygon_layers, "Polígonos", main_group, subgroups)
 
     print("Todas as camadas foram carregadas.")
 
@@ -350,8 +330,8 @@ def obter_filtro(r, funcao):
     else:
         return ""
 
-def obter_area_unidade(user_id):
-    funcao = obter_nr_funcao(user_id)
+def obter_area_unidade(user_id, funcao):
+    #funcao = obter_nr_funcao(user_id)
     if(funcao > 0 and user_id > 0):
         r = obter_unidade_trabalho(user_id, funcao)
         if(len(r[1]) > 0):
@@ -369,21 +349,48 @@ def codificar_senha(s):
     encoded_str = encoded.decode()
     return encoded_str  # Outputs: SGVsbG8sIHdvcmxkIQ==
 
+def obter_id_usuario(idtmil, senha):
+    conn = get_connection(DB_NAME_MOLDURA)
+    if conn is None:
+        return None
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT ID, NOME, FUNCAO, POST_GRAD FROM USUARIOS WHERE IDTMIL = '{idtmil}' AND SENHA = '{senha}';")
+        result = cursor.fetchone()
+        if len(result) > 0:
+            cursor.close()
+            conn.close()
+            return result
+        else:
+            print(f"Usuário Não localizado (idtmil: {idtmil}), tente novamente!")
+            return []
+    except Exception as e:
+        print(f"Erro ao obter unidade de trabalho: {e}")
+        return []
+
 # Função principal
 def main():
-    user_id = 1
-
-    # Create and display the dialog
+    
+    #input login
     dialog = InputDialog()
     dialog.exec_()
-
-    # Access the inputs after the dialog is closed
     idtmil = dialog.idtmil
     senha = dialog.senha
 
-    print("IDT MIL:", idtmil, "SENHA: ", codificar_senha(senha))
+    dados_usu = obter_id_usuario(idtmil, codificar_senha(senha))
+    if(len(dados_usu) < 4):
+        return
+    
+    id_usu = dados_usu[0]
+    nome_usu = dados_usu[1]
+    funcao_usu = dados_usu[2]
+    post_grad_usu = dados_usu[3]
 
-    return
+    if(not id_usu > 0):
+        print("Id usuário inválido!")
+        return
+    
+    print(f"Usuário {post_grad_usu} {nome_usu}, logado com sucesso!")
     
     if not iface:
         print("Interface QGIS (iface) não está disponível.")
@@ -396,7 +403,7 @@ def main():
     #    return
 
     #geom_wkt, geom = get_moldura_geom(f"id = {mi}")
-    geom_wkt, geom, filtro, fase = obter_area_unidade(user_id)
+    geom_wkt, geom, filtro, fase = obter_area_unidade(id_usu, funcao_usu)
     if not geom_wkt:
         print("Não foi possível obter a geometria da moldura.")
         return
@@ -407,18 +414,16 @@ def main():
 
     # Criar grupo principal com o nome do MI
     root = QgsProject.instance().layerTreeRoot()
-    main_group = root.addGroup(f"{fase}_{filtro}")
+    main_group = root.addGroup(f"{nome_usu}_{fase}_{filtro}")
 
     # Carregar as camadas do banco de dados pit_topo_pe_2024, esquema edgv
     load_classes_layers(geom_wkt, main_group)
 
     # Carregar a camada aux_moldura_a com filtro no MI e adicionar ao grupo principal
     moldura_layer = load_moldura_layer(filtro)
-    print(str(moldura_layer))
     if not moldura_layer:
         print("Falha ao carregar a camada aux_moldura_a.")
         return
-
     main_group.insertChildNode(-1, QgsLayerTreeLayer(moldura_layer))
     print("Moldura adicionada ao grupo principal.")
 
