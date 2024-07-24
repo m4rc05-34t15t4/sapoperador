@@ -36,6 +36,14 @@
             $sql = "SELECT ID, MI, MI_25000, OP_REC, DATA_INI_REC, DATA_FIN_REC FROM aux_moldura_a WHERE OP_REC = $OP;";
             $dados_usu_cartas_rec = get_dados_bd_query($sql);
 
+            $nf = $dados_usu['nr_funcao'];
+            $sql = "SELECT EXTRACT(WEEK FROM CURRENT_DATE) AS nr_semana, EXTRACT(WEEK FROM data_start) AS nr_sem_start, EXTRACT(WEEK FROM data_limite) AS nr_sem_limite, 
+                    COALESCE(jsonb_exists(METAS_USUARIOS::JSONB, '$OP'), FALSE) AS E_M_U, COALESCE(jsonb_exists(METAS_FUNCOES::JSONB, '$nf'), FALSE) AS E_M_F, 
+                    ID, DATA_START, DATA_LIMITE, METAS_QTD, METAS_FUNCOES, METAS_USUARIOS FROM metas 
+                    WHERE data_start <= CURRENT_DATE and data_limite >= CURRENT_DATE 
+                    ORDER BY E_M_U DESC, E_M_F DESC, ID DESC LIMIT 1;";
+            $dados_metas = get_dados_bd_query($sql)[0];
+
             $dados = array(
                 'usuario'   =>  $dados_usu,
                 'hid'       =>  $dados_usu_cartas_hid,
@@ -43,7 +51,8 @@
                 'int'       =>  $dados_usu_cartas_int,
                 'veg'       =>  $dados_usu_cartas_veg,
                 'rec'       =>  $dados_usu_cartas_rec,
-                'funcoes'   =>  $funcoes
+                'funcoes'   =>  $funcoes,
+                'metas'     =>  $dados_metas
             );
 
             echo json_encode($dados);

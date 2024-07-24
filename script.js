@@ -11,7 +11,7 @@ $(document).ready(function(){
     }
 
     function verifica_se_reservado(t, $f){
-        if(t[`data_ini_${$f}`] == null && t[`data_fin_${$f}`] == null) $em_erro.push([t, $f]);
+        if(t[`data_ini_${$f}`] == null && t[`data_fin_${$f}`] == null) $em_reserva.push([t, $f]);
     }
 
     function popular_cartas($f, $dados){
@@ -38,6 +38,17 @@ $(document).ready(function(){
                 $("#cartas_"+tipo).append(`<div class="em_trabalho mx-2 mb-2">${texto_cartas(carta)}</div>`);
             });
             $("#descricao_"+tipo).fadeIn(500);
+        }
+    }
+
+    function popula_em_erro(array){
+        if(array.length > 0){
+            $msg = '<div id="unidades_trabalho_em_erro" class="d-flex flex-column w-100 justify-content-center align-items-center"><h4>Unidades de Trabalho em Erro</h4><h5>Fale com o Administrador</h5>';
+            array.forEach(carta => {
+                $msg += `<div class="em_erro mx-2 mb-2">${texto_cartas(carta)}</div>`;
+            });
+            $msg += '</div>';
+            AddAlert($msg, 'danger');
         }
     }
 
@@ -78,6 +89,7 @@ $(document).ready(function(){
         if($id_usu > 0){
             $.get('conexao_get_dados.php', { usuario: String($id_usu) }, 
                 function(dados){
+                    //console.log(dados);
                     $dados_usu = JSON.parse(dados);
                     console.log('dados:', $dados_usu);
                     $("#nome_usuario").html($dados_usu['usuario']['nome']);
@@ -101,10 +113,12 @@ $(document).ready(function(){
                     console.log('em_trabalho', $em_trabalho);
                     console.log('em_erro', $em_erro);
                     console.log('em_reserva', $em_reserva);
-                    popular_descricao_cartas($em_trabalho, "em_trabalho");
-                    //popular_descricao_cartas($em_reserva, "em_reserva");
-                    popular_descricao_cartas($em_erro, "em_erro");
+                    //popular_descricao_cartas($em_trabalho, "em_trabalho");
+                    popular_descricao_cartas($em_reserva, "em_reserva");
+                    //popular_descricao_cartas($em_erro, "em_erro");
+                    popula_em_erro($em_erro);
                     mostrar_botao_controle(FUNCOES);
+                    popula_meta();
                 }
             );
         }
@@ -150,6 +164,38 @@ $(document).ready(function(){
             } else AddAlert(`Erro ao carregar imagem!`, 'danger');
         };
         xhr.send(formData);
+    }
+
+    function popula_meta(){
+        
+        $metas_vigente = {"data-start" : null, "data_limite" : null, "qtd" : null};
+        $metas_usu = JSON.parse($dados_usu['metas']['metas_usuarios']);
+        $metas_func = JSON.parse($dados_usu['metas']['metas_funcoes']);
+        
+        if($dados_usu['usuario']['id'] in $metas_usu){
+
+        }
+        else if($dados_usu['usuario']['nr_funcao'] in $metas_func){
+
+        }
+        else{
+
+        }
+
+        var progressBar = $('#progress-bar');
+        var width = 0;
+
+        var interval = setInterval(function() {
+            width += 5;
+            progressBar.css('width', width + '%');
+            progressBar.attr('aria-valuenow', width);
+            progressBar.text(String(width)+'%');
+
+            if (width >= 100) {
+                clearInterval(interval);
+                progressBar.addClass('bg-success').text('Completado!');
+            }
+        }, 100);
     }
 
     get_dados();

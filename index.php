@@ -1,4 +1,8 @@
 <?php 
+  header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+  header("Cache-Control: no-cache");
+  header("Pragma: no-cache"); 
+  header("Refresh:1800");//recarrega em 30min
   if ( session_status() !== PHP_SESSION_ACTIVE ) session_start();
   $id_sessao = "0";
   if( isset($_SESSION['SAPO']['id']) ) $id_sessao = $_SESSION['SAPO']['id'];
@@ -34,16 +38,20 @@
           </div>
         </div>
         
-        <div id="menu-right" class="d-flex flex-rown flex-wrap">
+        <div id="menu-right" class="w-100 d-flex flex-rown flex-wrap justify-content-between align-items-center">
+
+          <div class="progress-container">
+            <h3 title="Progresso da Meta Semanal">Meta Semanal:</h3><br>
+            <div class="progress">
+              <div id="progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+
           <div id="descricao_em_reserva" class="descricao_carta mx-3 text-center">
             <h3 title="reservadas pelo ADM">Reservada:</h3>
             <div id="cartas_em_reserva" class="fs-4 d-flex flex-column flex-wrap w-100 justify-content-center align-items-center"></div>
           </div>
-          
-          <div id="descricao_em_erro" class="descricao_carta mx-3 text-center">
-            <h3 title="Erro no Banco Fale com o ADM">Erros:</h3>
-            <div id="cartas_em_erro" class="fs-4 d-flex flex-column flex-wrap w-100 justify-content-center align-items-center"></div>
-          </div>
+        
         </div>
       
       </div>
