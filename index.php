@@ -20,7 +20,7 @@
   <div class="container-custom">
     <div id="cabecalho" class="d-flex row flex-wrap container-fluid bg-dark text-white justify-content-between mb-3">
       <div class="fs-5 d-flex flex-rown justify-content-end">
-        <h1 id="titulo_sapoperador" class="m-0 p-2 w-auto text-secondary">FORPRON 2024 - SAPOperador</h1>
+        <h1 id="titulo_sapoperador" class="m-0 p-3 w-auto text-secondary">FORPRON 2024 - SAPOperador</h1>
         <?php echo ($id_sessao != "0") ? '<a id="logout" class="mx-3 pt-4" href="logout.php">Sair</a>' : '<a id="login" class="mx-3 pt-4" href="">Login</a>'; ?>
       </div>
     </div>
@@ -41,7 +41,7 @@
         <div id="menu-right" class="w-100 d-flex flex-rown flex-wrap justify-content-between align-items-center">
 
           <div class="progress-container">
-            <h3 title="Progresso da Meta Semanal">Meta Semanal:</h3><br>
+            <h3 title="Progresso da Meta Semanal">Meta Semanal: <span id="qtd_meta"></span></h3><br>
             <div class="progress">
               <div id="progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
