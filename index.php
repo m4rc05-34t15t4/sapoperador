@@ -38,13 +38,10 @@
           </div>
         </div>
         
-        <div id="menu-right" class="w-100 d-flex flex-rown flex-wrap justify-content-between align-items-center">
+        <div id="menu-right" class="w-100 d-flex flex-rown flex-wrap justify-content-between align-items-center mt-5 pt-5">
 
-          <div class="progress-container">
-            <h3 title="Progresso da Meta Semanal">Meta Semanal: <span id="qtd_meta"></span></h3><br>
-            <div class="progress">
-              <div id="progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
+          <div id="barra-progresso-div" class="mt-3 d-flex flex-column">
+          <div class="w-100 text-center fs-3">Meta Semanal: <b class="qtd_meta fs-4 text-end"></b></div>
           </div>
 
           <div id="descricao_em_reserva" class="descricao_carta mx-3 text-center">
@@ -171,6 +168,7 @@
   <script src="popper.min.js"></script>
   <script src="bootstrap.min.js"></script>
   <script src="jquery-3.5.0.js"></script>
+  <script src="<?php echo "funcoes.js?".time(); ?>"></script>
   <script src="<?php echo "script.js?".time(); ?>"></script>
 </body>
 </html>

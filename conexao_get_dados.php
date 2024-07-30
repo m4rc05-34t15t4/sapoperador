@@ -18,7 +18,8 @@
                 (SELECT ID AS ID_FUNC, NR_FUNCAO, FUNCAO from FUNCOES) tb 
                     ON ta.FUNCAO = tb.NR_FUNCAO
             );";
-            $dados_usu = get_dados_bd_query($sql)[0];
+            $r = get_dados_bd_query($sql);
+            $dados_usu = count($r) > 0 ? $r[0] : null;
 
             //pegar dados usuario cartas
             $sql = "SELECT ID, MI, MI_25000, OP_HID, DATA_INI_HID, DATA_FIN_HID FROM aux_moldura_a WHERE OP_HID = $OP;";
@@ -36,13 +37,21 @@
             $sql = "SELECT ID, MI, MI_25000, OP_REC, DATA_INI_REC, DATA_FIN_REC FROM aux_moldura_a WHERE OP_REC = $OP;";
             $dados_usu_cartas_rec = get_dados_bd_query($sql);
 
-            $nf = $dados_usu['nr_funcao'];
+            /*$nf = $dados_usu['nr_funcao'];
             $sql = "SELECT EXTRACT(WEEK FROM CURRENT_DATE) AS nr_semana, EXTRACT(WEEK FROM data_start) AS nr_sem_start, EXTRACT(WEEK FROM data_limite) AS nr_sem_limite, 
                     COALESCE(jsonb_exists(METAS_USUARIOS::JSONB, '$OP'), FALSE) AS E_M_U, COALESCE(jsonb_exists(METAS_FUNCOES::JSONB, '$nf'), FALSE) AS E_M_F, 
                     ID, DATA_START, DATA_LIMITE, METAS_QTD, METAS_FUNCOES, METAS_USUARIOS FROM metas 
                     WHERE data_start <= CURRENT_DATE and data_limite >= CURRENT_DATE 
                     ORDER BY E_M_U DESC, E_M_F DESC, ID DESC LIMIT 1;";
-            $dados_metas = get_dados_bd_query($sql)[0];
+            $r = get_dados_bd_query($sql);
+            $dados_metas = count($r) > 0 ? $r[0] :  null;*/
+
+            $sql = "SELECT EXTRACT(WEEK FROM CURRENT_DATE) AS nr_semana, EXTRACT(WEEK FROM data_start) AS nr_sem_start, EXTRACT(WEEK FROM data_limite) AS nr_sem_limite, 
+                    ID, DATA_START, DATA_LIMITE, METAS_QTD, METAS_FUNCOES, METAS_USUARIOS FROM metas 
+                    WHERE data_start <= CURRENT_TIMESTAMP and data_limite >= CURRENT_TIMESTAMP 
+                    ORDER BY ID DESC LIMIT 1;";
+            $r = get_dados_bd_query($sql);
+            $dados_metas = count($r) > 0 ? $r[0] : null;
 
             $dados = array(
                 'usuario'   =>  $dados_usu,

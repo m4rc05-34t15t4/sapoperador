@@ -47,6 +47,7 @@
   <script src="popper.min.js"></script>
   <script src="bootstrap.min.js"></script>
   <script src="jquery-3.5.0.js"></script>
+  <script src="<?php echo "funcoes.js?".time(); ?>"></script>
   <script src="<?php echo "meta_semanal.js?".time(); ?>"></script>
 </body>
 </html>

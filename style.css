@@ -76,6 +76,7 @@
     position: absolute;
     top: 20px;
     right: 20px;
+    z-index: 100;
 }
 
 .botao-controle{
@@ -140,10 +141,13 @@ body {
 
 .progress-container {
     max-width: 300px;
+    border-bottom: solid 1px #ccc;
+    border-radius: 5px;
 }
 .progress{
     min-height: 30px;
     min-width: 300px;
+    background-color: #aaa;
 }
 .progress-bar {
     transition: width 0.6s ease;
@@ -178,4 +182,8 @@ body {
     max-height: 100vh;
     overflow-y: scroll;
     min-width: 100vw;
+}
+
+#barra-progresso-div{
+    display: none;
 }
