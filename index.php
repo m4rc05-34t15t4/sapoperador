@@ -21,7 +21,9 @@
     <div id="cabecalho" class="d-flex row flex-wrap container-fluid bg-dark text-white justify-content-between mb-3">
       <div class="fs-5 d-flex flex-rown justify-content-end">
         <h1 id="titulo_sapoperador" class="m-0 p-3 w-auto text-secondary">FORPRON 2024 - SAPOperador</h1>
-        <?php echo ($id_sessao != "0") ? '<a id="logout" class="mx-3 pt-4" href="logout.php">Sair</a>' : '<a id="login" class="mx-3 pt-4" href="">Login</a>'; ?>
+        <div id="links-cabecalho" class="ms-5 d-flex flex-rown justify-content-end">
+          <?php echo ($id_sessao != "0") ? '<a id="logout" class="mx-3 pt-4" title="Finalizar Acesso" href="logout.php">Sair</a>' : '<a id="login" class="mx-3 pt-4" href="">Login</a>'; ?>
+        </div>
       </div>
     </div>
     <div class="content">
@@ -41,7 +43,7 @@
         <div id="menu-right" class="w-100 d-flex flex-rown flex-wrap justify-content-between align-items-center mt-5 pt-5">
 
           <div id="barra-progresso-div" class="mt-3 d-flex flex-column">
-          <div class="w-100 text-center fs-3">Meta Semanal: <b class="qtd_meta fs-4 text-end"></b></div>
+            <div class="w-100 text-center fs-3">Meta Semanal: <b class="qtd_meta fs-4 text-end"></b></div>
           </div>
 
           <div id="descricao_em_reserva" class="descricao_carta mx-3 text-center">

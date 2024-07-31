@@ -1,4 +1,19 @@
 const SIGLAS_FUNCOES = { 'hid' : 1, 'tra' : 2, 'int' : 4, 'veg' : 8, 'rec' : 16 };
+$CONF = [];
+
+async function loadJSON() {
+    try {
+        const response = await fetch('conf.json');
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        $data = await response.json();
+        return $data;
+        
+    } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+    }
+}
 
 function criar_barra(usu_id){
     return `

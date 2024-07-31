@@ -76,11 +76,11 @@ $(document).ready(function(){
         $id_usu = parseInt($("#div-controle-usuario").attr("id_usuario"));
 
         //Opção cadastrar
-        if($id_usu == 1 || $id_usu == 2 ){
+        if( $CONF['administrador'].indexOf($id_usu) >= 0 ){
             console.log("Usuário ADMINISTRADOR!");
-            $("#titulo_sapoperador").css("cursor", "pointer");
-            $("#titulo_sapoperador").attr("title", "Clique para Cadastrar Novo usuário");
-            $("#titulo_sapoperador").click(function(){
+            $("#links-cabecalho").prepend('<a id="metasemanal" class="mx-3 pt-4" title="Meta Semanal Geral" href="meta.php">Meta</a>');
+            $("#links-cabecalho").prepend('<a id="cadastrar" class="mx-3 pt-4" title="Cadastrar Usuário" style="cursor:pointer">Cadastrar</a>');
+            $("#cadastrar").click(function(){
                 showModalLogin('ModalCadastrar');
             });
         }
@@ -172,7 +172,16 @@ $(document).ready(function(){
         xhr.send(formData);
     }
 
-    get_dados();
+    async function main() {
+        $CONF = await loadJSON();
+        if ($CONF) {
+
+            get_dados();
+
+        }
+    }
+    main();
+
 
     //EVENTOS
 

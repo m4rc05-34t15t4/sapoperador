@@ -1,7 +1,7 @@
 <?php
     require_once 'conexao.php';
 
-    $ADM = [1];
+    $CONF = json_decode(file_get_contents('conf.json'), true);
 
     // Consulta SQL
     if(!isset($_GET['usuario'])) echo json_encode(array( 'error' => 'Dados GET não encontrado!'));
@@ -9,7 +9,7 @@
         $OP = $_GET['usuario'];
         // Preparação e execução da consulta
         try {
-            if(in_array($OP, $ADM)){
+            if(in_array($OP, $CONF['administrador'])){
                 //pegar dados usuario
                 $sql = "SELECT id, nome, post_grad, idtmil, nr_funcao, USU.funcao, QTD_HID, QTD_TRA, QTD_INT, QTD_VEG, QTD_REC FROM
                         (SELECT id, nome, post_grad, idtmil, nr_funcao, tb.funcao from (
