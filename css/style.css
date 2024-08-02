@@ -1,0 +1,189 @@
+.container-custom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    height: 100vh;
+    width: 100%;
+}
+.content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 0 50px 0 50px;
+}
+.row-custom {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+.col-custom {
+    flex: 1;
+    margin: 0 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#imagem-usuario {
+    position: relative;
+    top: 20px;
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    background-color: #333;
+    border: solid 8px #333;
+    object-fit: cover;
+    cursor: pointer;
+    background-image: url('../img/usuario.png');
+    background-position: center;
+    z-index: 10;
+}
+#div-controle-usuario{
+    position: relative;
+    top: 30px;
+    z-index: 10;
+}
+#lista_content ul {
+    max-height: calc(100vh - 500px);
+    overflow-y: scroll;
+    width: 100%;
+}
+#menu-left{
+    min-width: 550px;
+    max-width: 550px;
+    width: 500px;
+}
+
+.descricao_carta {
+    display: none;
+}
+
+#cartas_em_trabalho, #cartas_em_reserva, #cartas_em_erro {
+    min-height: 100px;
+    max-height: 200px;
+    min-width: 300px;
+    overflow-y: scroll;
+}
+
+#botao_finalizar_carta, #botao_pedir_carta{
+    display: none;
+}
+
+#div-alertas{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+}
+
+.botao-controle{
+    border-radius: 15px;
+    border: solid 1px #ddd;
+}
+
+body {
+    background: linear-gradient(to bottom, #f5f5f5, #cccccc);
+}
+
+/* Estilos para navegadores WebKit (Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1c1c1c;  /* Cor do trilho */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #06beb6, #48b1bf); /* Gradiente do polegar */
+    border-radius: 10px;
+    border: 2px solid #1c1c1c; /* Borda para criar um efeito de espaço */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #48b1bf, #06beb6); /* Gradiente invertido no hover */
+}
+
+/* Estilos para navegadores Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #222 #ccc;
+}
+
+#cabecalho {
+    position: absolute;
+    top: 0;
+    z-index: 5;
+    min-height: 80px;
+    min-width: 500px;
+}
+
+#cabecalho a {
+    text-decoration: none;
+    color: #999
+}
+#cabecalho a:hover {
+    color: #09F;
+}
+
+#ModalLogin{
+    background-color: black;
+}
+
+#fileInput{
+    display: none;
+}
+
+.progress-container {
+    max-width: 300px;
+    border-bottom: solid 1px #ccc;
+    border-radius: 5px;
+}
+.progress{
+    min-height: 30px;
+    min-width: 300px;
+    background-color: #aaa;
+}
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+.dados-meta-usuario{
+    max-width: 500px;
+    min-width: 500px;
+}
+.dados-meta-usuario img{
+    position: relative;
+    top: 0px;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    background-color: #333;
+    border: solid 8px #333;
+    object-fit: cover;
+    cursor: pointer;
+    background-image: url('../img/usuario.png');
+    background-position: center;
+}
+.dados-meta-usuario div {
+    position: relative;
+    top: 0px;
+}
+
+#div-content-usuarios {
+    margin: 0;
+    padding: 0;
+    padding-top: 100px;
+    max-height: 100vh;
+    overflow-y: scroll;
+    min-width: 100vw;
+}
+
+#barra-progresso-div{
+    visibility: hidden;
+}
