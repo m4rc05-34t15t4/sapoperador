@@ -27,16 +27,16 @@ function criar_barra(usu_id){
 function Verificar_meta_usuario(metas, dados_usu){
     if(metas != null){
         $metas_vigente = {"id_usu" : dados_usu['id'], "data-start" : null, "data_limite" : null, "qtd" : null, 'qtd_semanal' : {'total' : 0}};
-        $metas_usu = JSON.parse(metas['metas_usuarios']);
-        $metas_func = JSON.parse(metas['metas_funcoes']);
+        $metas_usu = metas['metas_usuarios'];
+        $metas_func = metas['metas_funcoes'];
         $id_u = dados_usu['id'];
         $nr_f_u = dados_usu['nr_funcao'];
-        if($metas_usu != null && dados_usu['id'] in $metas_usu){
+        if($metas_usu != null && $metas_usu != "" && dados_usu['id'] in $metas_usu){
             $metas_vigente["data-start"] = ("data_start" in $metas_usu[$id_u]) ? $metas_usu[$id_u]["data_start"] : metas["data_start"];
             $metas_vigente["data_limite"] = ("data_limite" in $metas_usu[$id_u]) ? $metas_usu[$id_u]["data_limite"] : metas["data_limite"];
             $metas_vigente["qtd"] = parseInt(("qtd" in $metas_usu[$id_u]) ? $metas_usu[$id_u]["qtd"] : metas["metas_qtd"]);
         }
-        else if($metas_func != null && $nr_f_u in $metas_func){
+        else if($metas_func != null && $metas_func != "" && $nr_f_u in $metas_func){
             $metas_vigente["data-start"] = ("data_start" in $metas_func[$nr_f_u]) ? $metas_func[$nr_f_u]["data_start"] : metas["data_start"];
             $metas_vigente["data_limite"] = ("data_limite" in $metas_func[$nr_f_u]) ? $metas_func[$nr_f_u]["data_limite"] : metas["data_limite"];
             $metas_vigente["qtd"] = parseInt(("qtd" in $metas_func[$nr_f_u]) ? $metas_func[$nr_f_u]["qtd"] : metas["metas_qtd"]);
@@ -70,4 +70,16 @@ function criar_barra_meta(id_item, meta){
 
 function verifica_permissao_mostrar_controle(id_funcao){
     return id_funcao < 32 ? true : false;
+}
+
+function getQueryParams() {
+    const params = {};
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    urlParams.forEach((value, key) => {
+        params[key] = value;
+    });
+
+    return params;
 }

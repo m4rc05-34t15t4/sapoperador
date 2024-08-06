@@ -12,11 +12,12 @@ $(document).ready(function(){
                     $dados_usu['usuario'].forEach(usu => {
                         $meta_usu = Verificar_meta_usuario($dados_usu['metas'], usu);
                         $invisivel = verifica_permissao_mostrar_controle(usu['nr_funcao']) ? "" : " invisible";
+                        $adm = $CONF['administrador'].indexOf(usu['id']) >= 0 ? ' <img src="../img/gear-fill.svg" class="ms-1 img-simbolo-adm" title="Administrador"/>' : '';
                         $("#div-content-usuarios").append(`
                             <div id="usuario_${usu['id']}" class="dados-meta-usuario m-3 d-flex">
-                                <img src="../img/usuarios/${usu['id']}.jpg" alt="" class="img-fluid img-center mb-2" />
+                                <a href="perfil.php?usuario=${usu['id']}" ><img src="../img/usuarios/${usu['id']}.jpg?${Date.now()}" alt="" class="dados-meta-usuario-img img-fluid img-center mb-2" /></a>
                                 <div class="dados-metas">
-                                    <h2 id="nome_usuario" class="ms-2 text-black">${usu['post_grad']} ${usu['nome']}</h2>
+                                    <h2 id="nome_usuario" class="ms-2 text-black">${usu['post_grad']} ${usu['nome']}${$adm}</h2>
                                     <div class="d-flex flex-rown justify-content-between align-items-center">
                                         <h3 id="funcao_usuario" class="ms-4 text-primary">${usu['funcao']}</h3>
                                         <b class="qtd_meta fs-4${$invisivel}">${$meta_usu["qtd_semanal"]["total"]}/0</b>

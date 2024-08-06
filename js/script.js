@@ -75,26 +75,41 @@ $(document).ready(function(){
 
     function get_dados(){
 
-        $id_usu = parseInt($("#div-controle-usuario").attr("id_usuario"));
+        queryParams = getQueryParams();
 
+        $id_usu = parseInt($("#div-controle-usuario").attr("id_usuario"));
         //Opção cadastrar
+        $administrador = 0;
         if( $CONF['administrador'].indexOf($id_usu) >= 0 ){
             console.log("Usuário ADMINISTRADOR!");
+            $administrador = $id_usu;
+            $("#div-controle-usuario").attr("id_adm", $administrador);
             $("#links-cabecalho").prepend('<a id="cadastrar" class="mx-3 pt-4" title="Cadastrar Usuário" style="cursor:pointer">Cadastrar</a>');
             $("#cadastrar").click(function(){
                 showModalLogin('ModalCadastrar');
             });
+            if( Object.keys(queryParams).indexOf('usuario') >= 0 ) {
+                $id_usu = parseInt(queryParams['usuario']);
+            }
         }
 
         if($id_usu > 0){
-            $.get('conexao_get_dados.php', { usuario: String($id_usu) }, 
+            $.get('conexao_get_dados.php', { usuario: String($id_usu), adm : $administrador }, 
                 function(dados){
                     //console.log(dados);
                     $dados_usu = JSON.parse(dados);
                     console.log('dados:', $dados_usu);
-                    $("#nome_usuario").html($dados_usu['usuario']['nome']);
+                    $adm = $CONF['administrador'].indexOf($id_usu) >= 0 ? '<img src="../img/gear-fill.svg" class="ms-1 img-simbolo-adm" title="Administrador"/>' : '';
+                    if( $administrador > 0 && $administrador != $id_usu){
+                        $("#nome_adm").attr("json_adm", JSON.stringify($dados_usu['adm']));
+                        $("#nome_adm").html($dados_usu['adm']['nome']);
+                        $("#imagem-usuario").off('click');
+                        $("#imagem-usuario").css("cursor", 'default');
+                    }
+                    $("#div-controle-usuario").attr("id_usuario", $id_usu);
+                    $("#nome_usuario").html($dados_usu['usuario']['nome']+$adm);
                     $("#funcao_usuario").html($dados_usu['usuario']['funcao']);
-                    $("#imagem-usuario").attr("src", `../img/usuarios/${$dados_usu['usuario']['id']}.jpg`);
+                    $("#imagem-usuario").attr("src", `../img/usuarios/${$dados_usu['usuario']['id']}.jpg?${Date.now()}`);
                     const FUNCOES = $dados_usu['funcoes'].reduce((acc, item) => {
                         acc[item.nr_funcao] = item.funcao;
                         return acc;
