@@ -157,7 +157,7 @@ body {
     max-width: 500px;
     min-width: 500px;
 }
-.dados-meta-usuario img{
+.dados-meta-usuario-img{
     position: relative;
     top: 0px;
     border-radius: 50%;
@@ -186,4 +186,20 @@ body {
 
 #barra-progresso-div{
     visibility: hidden;
+}
+
+.img-simbolo-adm{
+    max-width: 30px;
+    min-width: 30px;
+    max-height: 30px;
+    min-height: 30px;
+    filter: invert(20%) sepia(90%) saturate(7000%) hue-rotate(190deg) brightness(105%) contrast(100%);
+    border: none;
+    background-image: none;
+    margin: 0;
+    padding: 0;
+}
+
+#nome_adm{
+    color: #09F;
 }
