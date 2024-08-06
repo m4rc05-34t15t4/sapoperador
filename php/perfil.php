@@ -20,6 +20,7 @@
   <div class="container-custom">
     <div id="cabecalho" class="d-flex row flex-wrap container-fluid bg-dark text-white justify-content-between mb-3">
       <div class="fs-5 d-flex flex-rown justify-content-end">
+        <h3 id="nome_adm" class="mt-4 mx-2" title="Administrador"></h3>
         <h1 id="titulo_sapoperador" class="m-0 p-3 w-auto text-secondary">FORPRON 2024 - SAPOperador</h1>
         <div id="links-cabecalho" class="ms-5 d-flex flex-rown justify-content-end">
           <a id="metasemanal" class="mx-3 pt-4" title="Meta Semanal Geral" href="meta.php">Meta</a>
@@ -31,9 +32,9 @@
       <div id="menu_head" class="d-flex flex-rown w-100 justify-content-between align-items-start">
         
         <div id="menu-left" class="d-flex flex-rown">
-          <img id="imagem-usuario" src="../img/usuarios/<?php echo $id_sessao; ?>.jpg" alt="" class="img-fluid img-center mb-4" />
+          <img id="imagem-usuario" src="../img/usuarios/<?php echo $id_sessao.'.jpg?'.time(); ?>" alt="" class="img-fluid img-center mb-4" />
           <input type="file" id="fileInput">
-          <div id="div-controle-usuario" id_usuario="<?php echo $id_sessao; ?>">
+          <div id="div-controle-usuario" id_adm="0" id_usuario="<?php echo $id_sessao; ?>">
             <h1 id="nome_usuario" class="ms-2 text-white">Nome do Usuário</h1>
             <h2 id="funcao_usuario" class="ms-4 text-primary">Função do Usuário</h2>
             <button id="botao_finalizar_carta" type="button" class="botao-controle px-3 py-4 ms-3 btn btn-danger mb-2 fs-4 shadow" miid="" tipo="">Finalizar 1134-1 (21) - HID</button>

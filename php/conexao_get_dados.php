@@ -7,6 +7,13 @@
         $OP = $_GET['usuario'];
         // Preparação e execução da consulta
         try {
+
+            if(isset($_GET['adm'])){
+                $sql = "SELECT ID, NOME, FUNCAO FROM USUARIOS WHERE ID = ".$_GET['adm'].";";
+                $r = get_dados_bd_query($sql);
+                $adm = count($r) > 0 ? $r[0] : null;
+            }
+
             //dados gerais
             $sql = "SELECT NR_FUNCAO, FUNCAO FROM FUNCOES;";
             $funcoes = get_dados_bd_query($sql);
@@ -87,7 +94,8 @@
                 'veg'       =>  $dados_usu_cartas_veg,
                 'rec'       =>  $dados_usu_cartas_rec,
                 'funcoes'   =>  $funcoes,
-                'metas'     =>  $dados_metas
+                'metas'     =>  $dados_metas,
+                'adm'       =>  $adm
             );
 
             echo json_encode($dados);
