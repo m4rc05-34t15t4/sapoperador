@@ -64,19 +64,19 @@
 
 
             //pegar dados usuario cartas
-            $sql = "SELECT ID, MI, MI_25000, OP_HID, DATA_INI_HID, DATA_FIN_HID FROM aux_moldura_a WHERE OP_HID = $OP;";
+            $sql = "SELECT ID, MI, MI_25000, OP_HID, DATA_INI_HID, DATA_FIN_HID FROM aux_moldura_a WHERE OP_HID = $OP ORDER BY DATA_FIN_HID DESC, MI_25000, MI, ID;";
             $dados_usu_cartas_hid = get_dados_bd_query($sql);
 
-            $sql = "SELECT ID, MI, MI_25000, OP_TRA, DATA_INI_TRA, DATA_FIN_TRA FROM aux_moldura_a WHERE OP_TRA = $OP;";
+            $sql = "SELECT ID, MI, MI_25000, OP_TRA, DATA_INI_TRA, DATA_FIN_TRA FROM aux_moldura_a WHERE OP_TRA = $OP ORDER BY DATA_FIN_TRA DESC, MI_25000, MI, ID;;";
             $dados_usu_cartas_tra = get_dados_bd_query($sql);
 
-            $sql = "SELECT ID, MI, MI_25000, OP_INT, DATA_INI_INT, DATA_FIN_INT FROM aux_moldura_a WHERE OP_INT = $OP;";
+            $sql = "SELECT ID, MI, MI_25000, OP_INT, DATA_INI_INT, DATA_FIN_INT FROM aux_moldura_a WHERE OP_INT = $OP ORDER BY DATA_FIN_INT DESC, MI_25000, MI, ID;;";
             $dados_usu_cartas_int = get_dados_bd_query($sql);
 
-            $sql = "SELECT ID, MI, MI_25000, OP_VEG, DATA_INI_VEG, DATA_FIN_VEG FROM aux_moldura_a WHERE OP_VEG = $OP;";
+            $sql = "SELECT ID, MI, MI_25000, OP_VEG, DATA_INI_VEG, DATA_FIN_VEG FROM aux_moldura_a WHERE OP_VEG = $OP ORDER BY DATA_FIN_VEG DESC, MI_25000, MI, ID;;";
             $dados_usu_cartas_veg = get_dados_bd_query($sql);
 
-            $sql = "SELECT ID, MI, MI_25000, OP_REC, DATA_INI_REC, DATA_FIN_REC FROM aux_moldura_a WHERE OP_REC = $OP;";
+            $sql = "SELECT ID, MI, MI_25000, OP_REC, DATA_INI_REC, DATA_FIN_REC FROM aux_moldura_a WHERE OP_REC = $OP ORDER BY DATA_FIN_REC DESC, MI_25000, MI, ID;;";
             $dados_usu_cartas_rec = get_dados_bd_query($sql);
 
             $sql = "SELECT EXTRACT(WEEK FROM CURRENT_DATE) AS nr_semana, EXTRACT(WEEK FROM data_start) AS nr_sem_start, EXTRACT(WEEK FROM data_limite) AS nr_sem_limite, 
