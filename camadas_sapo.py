@@ -2,8 +2,10 @@ import psycopg2
 import base64
 import pickle
 import os
-from qgis.core import (QgsVectorLayer, QgsProject, QgsDataSourceUri, QgsLayerTreeLayer, QgsWkbTypes, QgsGeometry)
+from qgis.core import (QgsVectorLayer, QgsProject, QgsDataSourceUri, QgsLayerTreeLayer, QgsWkbTypes, QgsGeometry, QgsFeature, QgsField, QgsFields, QgsPointXY, QgsVectorDataProvider, QgsProcessingFeatureSourceDefinition, QgsProcessing)
 from qgis.utils import iface
+from qgis.PyQt.QtCore import QVariant
+from qgis.analysis import QgsNativeAlgorithms
 #from PyQt5.QtWidgets import QInputDialog
 
 class InputDialog(QDialog):
@@ -158,6 +160,30 @@ def get_layers_with_features(geom_wkt):
         print(f"Erro ao obter camadas com feições: {e}")
         return []
     
+# Função para carregar a camada auxiliar com filtro no MI
+def load_aux_layer(geom_wkt, main_group):
+    uri = QgsDataSourceUri()
+    uri.setConnection(DB_HOST, DB_PORT, DB_NAME_MOLDURA, DB_USER, DB_PASSWORD)
+    carregadas  = []
+    camadas_load = ["aux_obj_ponto_p", "aux_obj_linha_l", "aux_obj_area_a"]
+    group = main_group.addGroup("auxiliares")
+    for c in camadas_load:
+        uri.setDataSource("public", c, "geom")
+        layer = QgsVectorLayer(uri.uri(), c, "postgres")
+        layer.setSubsetString(f"ST_Intersects(geom, ST_GeomFromText('{geom_wkt}', 4674))")
+        if not layer.isValid():
+            print("Falha ao carregar a camada "+c)
+        else:
+            QgsProject.instance().addMapLayer(layer, False)
+            group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+            #main_group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+            carregadas.append(layer)
+    if(len(carregadas) == len(camadas_load)):
+        print('Camadas auxiliares cartregadas com sucesso!')
+    else:
+        print('Camadas auxiliares que foram carregadas: '+str(carregadas))
+    
+    
 def carregar_camadas(layers, n_group, main_group, subgroups, g_prefix=False):
     t_geom_group = {"Pontos" : 'points', "Linhas" : 'lines', "Polígonos" : 'polygons'}
     tgg = t_geom_group[n_group]
@@ -180,7 +206,8 @@ def load_classes_layers(geom_wkt, main_group, g_prefix = False):
     subgroups = {
         "points": {},
         "lines": {},
-        "polygons": {}
+        "polygons": {},
+        "auxiliares" : {}
     }
 
     point_layers = []
@@ -416,6 +443,9 @@ def main():
     root = QgsProject.instance().layerTreeRoot()
     main_group = root.addGroup(f"{nome_usu}_{fase}_{filtro}")
 
+    #carrega camadas auxiliares
+    load_aux_layer(geom_wkt, main_group)
+
     # Carregar as camadas do banco de dados pit_topo_pe_2024, esquema edgv
     load_classes_layers(geom_wkt, main_group)
 
@@ -426,7 +456,6 @@ def main():
         return
     main_group.insertChildNode(-1, QgsLayerTreeLayer(moldura_layer))
     print("Moldura adicionada ao grupo principal.")
-
 
 # Executar a função principal
 main()
