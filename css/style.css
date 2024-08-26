@@ -164,7 +164,7 @@ body {
     width: 150px;
     height: 150px;
     background-color: #333;
-    border: solid 8px #333;
+    border: solid 5px #333;
     object-fit: cover;
     cursor: pointer;
     background-image: url('../img/usuario.png');
@@ -200,6 +200,14 @@ body {
     padding: 0;
 }
 
-#nome_adm{
+#nome_adm a{
     color: #09F;
+}
+
+#div-content-graficos{
+    padding-top: 100px;
+}
+
+#grafico_total_semana_tipo{
+    max-height: calc(100vh - 200px);
 }
