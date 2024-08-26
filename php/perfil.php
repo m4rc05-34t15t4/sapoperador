@@ -24,6 +24,7 @@
         <h1 id="titulo_sapoperador" class="m-0 p-3 w-auto text-secondary">FORPRON 2024 - SAPOperador</h1>
         <div id="links-cabecalho" class="ms-5 d-flex flex-rown justify-content-end">
           <a id="metasemanal" class="mx-3 pt-4" title="Meta Semanal Geral" href="meta.php">Meta</a>
+          <a id="graficos" class="mx-3 pt-4" title="Gráficos" href="grafico.php">Gráficos</a>
           <?php echo ($id_sessao != "0") ? '<a id="logout" class="mx-3 pt-4" title="Finalizar Acesso" href="logout.php">Sair</a>' : '<a id="login" class="mx-3 pt-4" href="">Login</a>'; ?>
         </div>
       </div>
@@ -144,12 +145,12 @@
                     <option value="TCel">TCel</option>
                     <option value="Maj">Maj</option>
                     <option value="Cap">Cap</option>
-                    <option value="1º Ten">1º Ten</option>
-                    <option value="2º Ten">2º Ten</option>
+                    <option value="1ºTen">1ºTen</option>
+                    <option value="2ºTen">2ºTen</option>
                     <option value="ST">ST</option>
-                    <option value="1º Sgt">1º Sgt</option>
-                    <option value="2º Sgt">2º Sgt</option>
-                    <option value="3º Sgt">3º Sgt</option>
+                    <option value="1ºSgt">1ºSgt</option>
+                    <option value="2ºSgt">2ºSgt</option>
+                    <option value="3ºSgt">3ºSgt</option>
                     <option value="Cb">Cb</option>
                     <option value="Sd">Sd</option>
                     <option value="SC">SC</option>
