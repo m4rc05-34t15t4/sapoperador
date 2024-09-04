@@ -60,7 +60,7 @@
       <div id="lista_content" class="h-100 row row-custom px-5">
         
         <div id="div_hid" class="col col-custom">
-          <h3 id="titulo_hid">Hidrogarfia<span class="qtd_trabalho"></span></h3>
+          <h3 id="titulo_hid">Hidrografia<span class="qtd_trabalho"></span></h3>
           <ul id="lista_hid" class="list-group"></ul>
         </div>
 
