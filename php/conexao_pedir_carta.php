@@ -38,7 +38,7 @@
                 break;
             case "16":
                 $tipo = "rec";
-                $atributo = "mi";
+                $atributo = "mi_25000";
                 $else = "'-1'";
                 break;
         }
