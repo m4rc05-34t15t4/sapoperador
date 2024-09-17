@@ -352,7 +352,8 @@ def obter_filtro(r, funcao):
         if(funcao == 4):
             filtro = f"mi_25000 = '{r[1][2]}'"
         elif(funcao == 16):
-            filtro = f"mi = '{r[1][1]}'"
+            filtro = f"mi_25000 = '{r[1][2]}'"
+            #filtro = f"mi = '{r[1][1]}'"
         return filtro
     else:
         return ""
