@@ -55,7 +55,7 @@ $(document).ready(function(){
         if($em_trabalho.length > 0 ){
             $id_funcao_em_trabalho = SIGLAS_FUNCOES[$em_trabalho[0][1]];
             if(parseInt($id_funcao_em_trabalho) == 4) $("#botao_finalizar_carta").attr("miid", String($em_trabalho[0][0]['mi_25000']).trim());
-            else if(parseInt($id_funcao_em_trabalho) == 16) $("#botao_finalizar_carta").attr("miid", String($em_trabalho[0][0]['mi']).trim());
+            else if(parseInt($id_funcao_em_trabalho) == 16) $("#botao_finalizar_carta").attr("miid", String($em_trabalho[0][0]['mi_25000']).trim()); //String($em_trabalho[0][0]['mi']).trim());
             else $("#botao_finalizar_carta").attr("miid", $em_trabalho[0][0]['id']);
             if(verifica_permissao_mostrar_controle($id_funcao_em_trabalho)){
                 $("#botao_finalizar_carta").attr("tipo", $id_funcao_em_trabalho);
@@ -102,7 +102,7 @@ $(document).ready(function(){
                     $adm = $CONF['administrador'].indexOf($id_usu) >= 0 ? '<img src="../img/gear-fill.svg" class="ms-1 img-simbolo-adm" title="Administrador"/>' : '';
                     if( $administrador > 0 && $administrador != $id_usu){
                         $("#nome_adm").attr("json_adm", JSON.stringify($dados_usu['adm']));
-                        $("#nome_adm").html($dados_usu['adm']['nome']);
+                        $("#nome_adm").html(`<a href="perfil.php">${$dados_usu['adm']['nome']}</a>`);
                         $("#imagem-usuario").off('click');
                         $("#imagem-usuario").css("cursor", 'default');
                     }
