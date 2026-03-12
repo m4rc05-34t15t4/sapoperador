@@ -2,6 +2,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 ini_set('display_errors', 0);
+
 $ano = date('Y');
 $mes = date('n');
 $semana = date('W');
@@ -84,10 +85,13 @@ switch ($pedido) {
         $WHERE = [];
         if(isset($_GET['ano'])) $WHERE[] = $_GET['ano'] == '' ? ' ano = '.$ano : " ano = ".$_GET['ano'];
         if(isset($_GET['mes'])) $WHERE[] = $_GET['mes'] == '' ? ' mes = '.$mes : " mes = ".$_GET['mes'];
-        if(isset($_GET['semana'])) $WHERE[] = $_GET['numero_semana'] == ' numero_semana = '.$semana ? '' : " numero_semana = ".$_GET['semana'];
+        if(isset($_GET['semana'])) $WHERE[] = $_GET['numero_semana'] == '' ? ' numero_semana = '.$semana : " numero_semana = ".$_GET['semana'];
         if(isset($_GET['data_inicio']) && validarData($_GET['data_inicio'])) $WHERE[] = ' ano >= '.date('Y', strtotime($_GET['data_inicio'])).' AND numero_semana >= '.date('W', strtotime($_GET['data_inicio']));
         if(isset($_GET['data_fim']) && validarData($_GET['data_fim'])) $WHERE[] = ' ano <= '.date('Y', strtotime($_GET['data_fim'])).' AND numero_semana <= '.date('W', strtotime($_GET['data_fim']));
-        if(trim(isset($_GET['nome_guerra'])) != '') $WHERE[] = " usuario = '".trim($isset($_GET['nome_guerra']))."'";
+        if(isset($_GET['nome_guerra']) && $_GET['nome_guerra'] != '') $WHERE[] = " usuario = '".trim($_GET['nome_guerra'])."'";
+        if(isset($_GET['lote']) && $_GET['lote'] != '') $WHERE[] = " lote_id = ".$_GET['lote'];
+        if(isset($_GET['subfase']) && $_GET['subfase'] != '') $WHERE[] = " subfase_id = ".$_GET['subfase'];
+        if(isset($_GET['bloco']) && $_GET['bloco'] != '') $WHERE[] = " bloco = '".$_GET['bloco']."'";
         $W = count($WHERE) > 0 ? 'WHERE '.implode(" AND", $WHERE) : '';
 
         //consulta
@@ -108,7 +112,7 @@ switch ($pedido) {
                         EXTRACT(YEAR FROM ".$j."_data_fim::TIMESTAMP) as ano,
                         EXTRACT(MONTH FROM ".$j."_data_fim::TIMESTAMP) as mes,
                         MIN(TO_CHAR(".$j."_data_fim::TIMESTAMP - (EXTRACT(ISODOW FROM ".$j."_data_fim::TIMESTAMP) - 1) * INTERVAL '1 day', 'DD/MM') || ' - ' || 
-                        TO_CHAR(".$j."_data_fim::TIMESTAMP + (5 - EXTRACT(ISODOW FROM ".$j."_data_fim::TIMESTAMP)) * INTERVAL '1 day', 'DD/MM')) AS periodo_semana,
+                        TO_CHAR(".$j."_data_fim::TIMESTAMP + (5 - EXTRACT(ISODOW FROM ".$j."_data_fim::TIMESTAMP)) * INTERVAL '1 day', 'DD/MM/YY')) AS periodo_semana,
                         '$sub_fase_lote' AS origem_view
                     FROM acompanhamento.$sub_fase_lote
                     WHERE ".$j."_usuario IS NOT NULL
