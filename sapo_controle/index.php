@@ -50,6 +50,7 @@
 <style>
     body {
         background-color: #f8f9fa;
+        padding-top: 120px
     }
     .centralizar {
         max-width: 900px;
@@ -64,16 +65,88 @@
         vertical-align: middle; /* Centraliza verticalmente */
         text-align: center;    /* Centraliza horizontalmente (opcional) */
     }
+    .input-fit {
+        width: auto !important;
+        min-width: fit-content;
+        display: inline-block;
+    }
 </style>
 <body class="bg-light">
 
+    <!-- Container Principal do Cabeçalho -->
+    <header class="fixed-top container-fluid border-bottom shadow-sm p-2 mb-2 rounded-3 bg-white">
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-center">
+            <!-- Lado Esquerdo: O GIF Estilizado -->
+            <div class="text-center">
+                <img src="./img/sapo_reambulador_digitando_video.gif" 
+                    alt="Sapo Digitando"  
+                    style="width: 75px; height: 75px; object-fit: cover; border-radius: 10px; border: 1px solid #AAA;">
+            </div>
+            <!-- Lado Direito: Os Textos -->
+            <div class="text-center text-md-start d-flex flex-rown">
+                <h1 class="fw-bold text-dark mx-1">Produção SAP<span class="text-success">O</span></h1>
+                <h2 class="text-muted italic mx-1"><span class="badge bg-success me-2">Semana Atual nº: <?=$numeroSemana?></span> Período: <strong><?=$exibicaoPeriodo?></strong></h5>
+            </div>
+        </div>
+    </header>
+
     <div class="container text-center">
         <div class="text-center w-fill">
-            <h2 class="m-0 mt-4">Produção SAP</h2>
-            <h4 class="m-0 mb-4 text-secundary"><i>Semana Atual nº: <?="$numeroSemana Período: $exibicaoPeriodo"?></i></h4>
-            <form method='get' class='mb-3'>
-                <select id='userSelect' class='form-select' name='nome_guerra'></select>
+            <form id="formFiltros" method="get" class="d-flex flex-wrap justify-content-center align-items-center g-2 mb-3">
+                <!-- Select Usuário -->
+                <div>
+                    <label class="form-label small text-center">Operador</label>
+                    <select id="userSelect" class="form-select w-auto" name="nome_guerra"></select>
+                </div>
+
+                <!-- Select Ano -->
+                <div>
+                    <label class="form-label small text-center">Ano</label>
+                    <select id="anoSelect" class="form-select w-auto" name="ano">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+
+                <!-- Select Mês -->
+                <div>
+                    <label class="form-label small text-center">Mês</label>
+                    <select id="mesSelect" class="form-select w-auto" name="mes">
+                        <option value="">Todos</option>
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                </div>
+
+                <!-- Select Semana -->
+                <div>
+                    <label class="form-label small text-center">Semana</label>
+                    <select id="semanaSelect" class="form-select w-auto" name="semana">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+
+                <!-- Datas (Período) -->
+                <div>
+                    <label class="form-label small">Início</label>
+                    <input type="date" name="data_inicio" class="form-control w-auto">
+                </div>
+                <div>
+                    <label class="form-label small">Fim</label>
+                    <input type="date" name="data_fim" class="form-control w-auto">
+                </div>
+                <!-- Botão Filtrar <div><button type="submit" class="btn btn-success w-100 fs-3 mx-2">Filtrar</button></div>-->
             </form>
+
             <div id='loader' class='spinner-border spinner-border-sm' role='status'></div>
             <div class='chart-container' style='height: 300px; min-width: 1000px;'>
                 <canvas id='graficoSemanal'></canvas>
@@ -100,6 +173,11 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
 
+        const inputInicio = document.querySelector('input[name="data_inicio"]');
+        const inputFim = document.querySelector('input[name="data_fim"]');
+
+        //FUNÇÕES
+        
         async function popularSelectUsuarios(nomeFiltro = '') {
             const select = document.getElementById('userSelect');
             try {
@@ -124,7 +202,58 @@
                 console.error("Erro ao popular select:", e);
             }
         }
-        
+
+        async function popularFiltrosBase(dados) {
+            try {
+
+                const anoSelect = document.getElementById('anoSelect');
+                const semanaSelect = document.getElementById('semanaSelect');
+                const urlParams = new URLSearchParams(window.location.search);
+                const userDaUrl = urlParams.get('nome_guerra') || '';
+                popularSelectUsuarios(userDaUrl);
+
+                // Busca anos e semanas da sua API (ex: pedido=filtros_disponiveis)
+                const listaAnos = [...new Set(dados.map(item => item.ano))].sort((a, b) => b - a);
+                const mapaSemanas = new Map();
+                dados.forEach(item => {
+                    if (!mapaSemanas.has(item.numero_semana)) {
+                        mapaSemanas.set(item.numero_semana, {
+                            numero: item.numero_semana,
+                            periodo: item.periodo_semana
+                        });
+                    }
+                });
+                const listaSemanas = Array.from(mapaSemanas.values()).sort((a, b) => a.numero - b.numero);
+
+                // Popular Anos
+                anoSelect.innerHTML = '<option value="">Ano (Todos)</option>';
+                listaAnos.forEach(ano => {
+                    anoSelect.innerHTML += `<option value="${ano}">${ano}</option>`;
+                });
+
+                // Popular Semanas
+                semanaSelect.innerHTML = '<option value="">Semana (Todas)</option>';
+                listaSemanas.forEach(s => {
+                    // Exibe: "Semana 5 (26/01 - 30/01/26)"
+                    semanaSelect.innerHTML += `<option value="${s.numero}">Semana ${s.numero} (${s.periodo})</option>`;
+                });
+
+                // Seleciona todos os campos de filtro que possuem um atributo 'name'
+                const filtros = document.querySelectorAll('#formFiltros select, #formFiltros input');
+                filtros.forEach(campo => {
+                    const nomeParametro = campo.name;
+                    const valorNaUrl = urlParams.get(nomeParametro);
+                    // Se o parâmetro existir na URL, aplica o valor ao campo
+                    if (valorNaUrl !== null) {
+                        campo.value = valorNaUrl;
+                    }
+                });
+
+            } catch (e) {
+                console.error("Erro ao popular filtros:", e);
+            }
+        }
+
         function preencherTabela(resposta) {
             const tbody = document.getElementById('corpoTabela');
             tbody.innerHTML = ""; // Limpa a tabela antes de preencher
@@ -160,24 +289,54 @@
             console.log(resposta);
             grafico(resposta.dados);
             preencherTabela(resposta);
+            popularFiltrosBase(resposta.dados);
 
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const userDaUrl = urlParams.get('nome_guerra') || '';
-        popularSelectUsuarios(userDaUrl);
+        //EXECUÇÃO
         atualizarGrafico();
 
         //EVENTOS
 
-        document.getElementById('userSelect').addEventListener('change', function() {
-            const novoUsuario = this.value;
-            const url = new URL(window.location.href);
-            const params = url.searchParams;
-            if (novoUsuario) params.set('nome_guerra', novoUsuario);
-            else params.delete('nome_guerra');
-            window.location.href = url.pathname + '?' + params.toString();
+        document.querySelectorAll('#formFiltros select, #formFiltros input[type="date"]').forEach(campo => {
+            campo.addEventListener('change', function() {
+                const url = new URL(window.location.href);
+                const params = url.searchParams;
+                // Verifica se o valor é vazio ou se é a string "Todos"
+                if (this.value && this.value !== "" && this.value !== "") {
+                    params.set(this.name, this.value);
+                } else {
+                    // Se cair aqui, o parâmetro é removido da URL
+                    params.delete(this.name);
+                }
+                // Redireciona apenas se a URL mudou (evita refresh desnecessário)
+                const novaUrl = url.pathname + (params.toString() ? '?' + params.toString() : '');
+                window.location.href = novaUrl;
+            });
         });
+        // 1. Verifica se já existem datas na URL (GET) ao carregar a página
+        const urlParams = new URLSearchParams(window.location.search);
+        const dataInicioUrl = urlParams.get('data_inicio');
+        const dataFimUrl = urlParams.get('data_fim');
+        if (inputInicio && inputFim) {
+            // Seta os valores nos campos (caso seu outro script ainda não tenha feito)
+            if (dataInicioUrl) {
+                inputInicio.value = dataInicioUrl;
+                inputFim.min = dataInicioUrl; // TRAVA OS DIAS ANTES NO LOAD
+            }
+            if (dataFimUrl) inputFim.value = dataFimUrl;
+            // 2. Evento de mudança (o que gera o recarregamento)
+            inputInicio.addEventListener('change', function() {
+                const dataSelecionada = this.value;
+                // Aplica o mínimo antes mesmo de recarregar (feedback visual)
+                inputFim.min = dataSelecionada;
+                // Se a data de fim for menor que a nova data de início, limpa antes de enviar
+                if (inputFim.value && inputFim.value < dataSelecionada) {
+                    inputFim.value = "";
+                }
+            });
+        }
+
     });
 </script>
 </body>

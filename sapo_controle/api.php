@@ -18,6 +18,11 @@ if (!$conn) {
     exit;
 }
 
+function validarData($data) {
+    $d = DateTime::createFromFormat('Y-m-d', $data);
+    return $d && $d->format('Y-m-d') === $data;
+}
+
 function buscar_dados($query, $dic=false){
     global $conn;
     $result = pg_query($conn, $query);
@@ -80,9 +85,9 @@ switch ($pedido) {
         if(isset($_GET['ano'])) $WHERE[] = $_GET['ano'] == '' ? ' ano = '.$ano : " ano = ".$_GET['ano'];
         if(isset($_GET['mes'])) $WHERE[] = $_GET['mes'] == '' ? ' mes = '.$mes : " mes = ".$_GET['mes'];
         if(isset($_GET['semana'])) $WHERE[] = $_GET['numero_semana'] == ' numero_semana = '.$semana ? '' : " numero_semana = ".$_GET['semana'];
-
-        $nomeFiltro = isset($_GET['nome_guerra']) ? trim($_GET['nome_guerra']) : '';
-        if($nomeFiltro != '') $WHERE[] = " usuario = '".$nomeFiltro."'";
+        if(isset($_GET['data_inicio']) && validarData($_GET['data_inicio'])) $WHERE[] = ' ano >= '.date('Y', strtotime($_GET['data_inicio'])).' AND numero_semana >= '.date('W', strtotime($_GET['data_inicio']));
+        if(isset($_GET['data_fim']) && validarData($_GET['data_fim'])) $WHERE[] = ' ano <= '.date('Y', strtotime($_GET['data_fim'])).' AND numero_semana <= '.date('W', strtotime($_GET['data_fim']));
+        if(trim(isset($_GET['nome_guerra'])) != '') $WHERE[] = " usuario = '".trim($isset($_GET['nome_guerra']))."'";
         $W = count($WHERE) > 0 ? 'WHERE '.implode(" AND", $WHERE) : '';
 
         //consulta
