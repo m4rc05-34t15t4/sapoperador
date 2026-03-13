@@ -3,8 +3,48 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputInicio = document.querySelector('input[name="data_inicio"]');
     const inputFim = document.querySelector('input[name="data_fim"]');
     chartInstance = null;
+    let ordemAscendente = true;
+    let ultimaColunaIdx = -1;
 
     //FUNÇÕES
+
+    function ordenarTabela(colunaIdx) {
+        const tabela = document.getElementById("corpoTabela");
+        const linhas = Array.from(tabela.rows);
+        // Lógica de inversão
+        if (ultimaColunaIdx === colunaIdx) ordemAscendente = !ordemAscendente;
+        else {
+            ordemAscendente = true;
+            ultimaColunaIdx = colunaIdx;
+        }
+        // Ordenação (mantendo sua lógica de números e texto)
+        const linhasOrdenadas = linhas.sort((a, b) => {
+            const valA = colunaIdx != 6 ? a.cells[colunaIdx].innerText.trim() : a.cells[colunaIdx].getAttribute("sort");
+            const valB = colunaIdx != 6 ? b.cells[colunaIdx].innerText.trim() : b.cells[colunaIdx].getAttribute("sort");
+            const numA = parseFloat(valA.replace(',', '.'));
+            const numB = parseFloat(valB.replace(',', '.'));
+            if (!isNaN(numA) && !isNaN(numB)) return ordemAscendente ? numA - numB : numB - numA;
+            return ordemAscendente 
+                ? valA.localeCompare(valB, 'pt-BR', { numeric: true }) 
+                : valB.localeCompare(valA, 'pt-BR', { numeric: true });
+        });
+        tabela.append(...linhasOrdenadas);
+        // --- ATUALIZAÇÃO VISUAL DOS ÍCONES ---
+        atualizarIcones(colunaIdx, ordemAscendente);
+    }
+
+    function atualizarIcones(colunaAtiva=-1, ascendente=false) {
+        // 1. Resetar todos os ícones para o estado neutro
+        document.querySelectorAll('#tabela-dados tr th i').forEach((icon, idx) => {
+            icon.className = "bi bi-arrow-down-up small float-end mt-1 text-white"; // Classe padrão
+            // 2. Se for a coluna clicada, muda o ícone e a cor
+            if (idx === colunaAtiva) {
+                if (ascendente) icon.className = "bi bi-caret-up-fill text-success float-end mt-1"; // Seta pra cima azul
+                else icon.className = "bi bi-caret-down-fill text-success float-end mt-1"; // Seta pra baixo azul
+            }
+        });
+    }
+
     
     async function popularSelectUsuarios(nomeFiltro = '') {
         const select = document.getElementById('userSelect');
@@ -31,6 +71,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function sort_periodo_valor(item){
+        const [d, m, a] = item.periodo_semana.split(" - ")[0].split("/");
+        return `${`${a}${m}${d}`}${String(item.numero_semana).padStart(2, '0')}`;
+    }
+
     async function popularFiltrosBase(resposta) {
         try {
 
@@ -52,11 +97,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!mapaSemanas.has(item.numero_semana)) {
                     mapaSemanas.set(item.numero_semana, {
                         numero: item.numero_semana,
-                        periodo: item.periodo_semana
+                        periodo: item.periodo_semana,
+                        ano_ini: item.ano,
+                        sortKey: parseInt(sort_periodo_valor(item)) // Usaremos isso para ordenar
                     });
                 }
             });
-            const listaSemanas = Array.from(mapaSemanas.values()).sort((a, b) => a.numero - b.numero);
+            const listaSemanas = Array.from(mapaSemanas.values()).sort((a, b) => b.sortKey - a.sortKey);
 
             // Popular Anos
             anoSelect.innerHTML = '<option value="">Todos</option>';
@@ -66,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Popular Semanas
             semanaSelect.innerHTML = '<option value="">Todas</option>';
-            Array.from(listaSemanas.values()).sort((a, b) => a.numero - b.numero).reverse().forEach(s => { semanaSelect.innerHTML += `<option value="${s.numero}">S. ${s.numero} (${s.periodo})</option>`;});
+            Array.from(listaSemanas.values()).forEach(s => { semanaSelect.innerHTML += `<option value="${s.numero}-${s.ano_ini}">S. ${s.numero} (${s.periodo})</option>`;});
 
             // Popular Lote
             loteSelect.innerHTML = '<option value="">Todos</option>';
@@ -104,15 +151,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Lógica do explode("_", tipo)[2] em JS:
             const tipoFormatado = linha.tipo ? linha.tipo.split("_")[2] : "";
             tr.innerHTML = `
-                <td style="vertical-align: middle; text-align: center;">${linha.total}</td>
                 <td style="vertical-align: middle;">(${linha.lote_id}) ${resposta.lote[linha.lote_id]['nome_abrev']}</td> 
                 <td style="vertical-align: middle;">(${linha.subfase_id}) ${resposta.subfase[linha.subfase_id]['nome']}</td>
-                <td style="vertical-align: middle;">${tipoFormatado}</td>
                 <td style="vertical-align: middle;">${linha.bloco}</td>
+                <td style="vertical-align: middle;">${tipoFormatado}</td>
                 <td style="vertical-align: middle;">${linha.usuario}</td>
-                <td style="vertical-align: middle; text-align: center;">${linha.ano}</td>
-                <td style="vertical-align: middle; text-align: center;">${linha.numero_semana}</td>
-                <td style="vertical-align: middle; text-align: center;">${linha.periodo_semana}</td>
+                <td style="vertical-align: middle; text-align: center;">${linha.total}</td>
+                <td style="vertical-align: middle; text-align: center;" sort="${sort_periodo_valor(linha)}">(${linha.numero_semana}) ${linha.periodo_semana}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -139,6 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //EXECUÇÃO
     atualizarGrafico();
+    atualizarIcones();
 
     //EVENTOS
 
@@ -191,5 +237,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    //Ordenar
+    document.querySelectorAll('#tabela-dados tr th').forEach((th, index) => {
+        th.addEventListener('click', () => { 
+            ordenarTabela(index);
+            atualizarIconesOrdenacao(index);
+        });
+    });
 
 });
