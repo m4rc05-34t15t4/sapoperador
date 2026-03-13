@@ -48,6 +48,7 @@
     <link rel="icon" type="image/gif" href="./img/sapo_reambulador_digitando.ico">
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/bootstrap-icons.min.css">
 </head>
 <style>
     body {
@@ -174,7 +175,13 @@
                     <label class="form-label small">Fim</label>
                     <input type="date" name="data_fim" class="form-control w-auto">
                 </div>
-                <!-- Botão Filtrar <div><button type="submit" class="btn btn-success w-100 fs-3 mx-2">Filtrar</button></div>-->
+                
+                <!-- Redireciona para a página atual sem nenhum parâmetro GET -->
+                <div title="Limpar Filtros">
+                    <label class="form-label small"></label>
+                    <a href="http://10.46.137.15/sapo_controle/" class="btn btn-secondary w-100 mx-2 rounded">Limpar Filtros</i></a>
+                </div>
+
             </form>
 
             <div id='loader' class='spinner-border spinner-border-sm' role='status'></div>
@@ -183,16 +190,14 @@
             </div>
         </div>
         <table id='tabela-dados' class='my-5 table table-striped table-bordered table-hover table-responsive'>
-            <tr>
-                <th>Total</th>
-                <th>Lote</th>
-                <th>Subfase</th>
-                <th>Tipo</th>
-                <th>Bloco</th>
-                <th>Operador</th>
-                <th>Ano</th>
-                <th>Nº Semana</th>
-                <th>Período Semana</th>
+            <tr style="cursor: pointer;">
+                <th><span>Lote</span> <i></i></th>
+                <th><span>Subfase</span> <i></i></th>
+                <th><span>Bloco</span> <i></i></th>
+                <th><span>Tipo</span> <i></i></th>
+                <th><span>Operador</span> <i></i></th>
+                <th><span>Total</span> <i></i></th>
+                <th><span>Período Semana</span> <i></i></th>
             </tr>
             <tbody id='corpoTabela'></tbody>
         </table>

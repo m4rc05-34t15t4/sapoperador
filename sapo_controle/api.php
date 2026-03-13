@@ -85,7 +85,7 @@ switch ($pedido) {
         $WHERE = [];
         if(isset($_GET['ano'])) $WHERE[] = $_GET['ano'] == '' ? ' ano = '.$ano : " ano = ".$_GET['ano'];
         if(isset($_GET['mes'])) $WHERE[] = $_GET['mes'] == '' ? ' mes = '.$mes : " mes = ".$_GET['mes'];
-        if(isset($_GET['semana'])) $WHERE[] = $_GET['numero_semana'] == '' ? ' numero_semana = '.$semana : " numero_semana = ".$_GET['semana'];
+        if(isset($_GET['semana']) && str_contains($_GET['semana'], '-')) $WHERE[] = $_GET['semana'] == '' ? ' numero_semana = '.$semana.' AND ano = '.$ano : " numero_semana = ".explode("-", $_GET['semana'])[0]." AND ano = ".explode("-", $_GET['semana'])[1];
         if(isset($_GET['data_inicio']) && validarData($_GET['data_inicio'])) $WHERE[] = ' ano >= '.date('Y', strtotime($_GET['data_inicio'])).' AND numero_semana >= '.date('W', strtotime($_GET['data_inicio']));
         if(isset($_GET['data_fim']) && validarData($_GET['data_fim'])) $WHERE[] = ' ano <= '.date('Y', strtotime($_GET['data_fim'])).' AND numero_semana <= '.date('W', strtotime($_GET['data_fim']));
         if(isset($_GET['nome_guerra']) && $_GET['nome_guerra'] != '') $WHERE[] = " usuario = '".trim($_GET['nome_guerra'])."'";
@@ -111,7 +111,7 @@ switch ($pedido) {
                         EXTRACT(WEEK FROM ".$j."_data_fim::TIMESTAMP) AS numero_semana,
                         EXTRACT(YEAR FROM ".$j."_data_fim::TIMESTAMP) as ano,
                         EXTRACT(MONTH FROM ".$j."_data_fim::TIMESTAMP) as mes,
-                        MIN(TO_CHAR(".$j."_data_fim::TIMESTAMP - (EXTRACT(ISODOW FROM ".$j."_data_fim::TIMESTAMP) - 1) * INTERVAL '1 day', 'DD/MM') || ' - ' || 
+                        MIN(TO_CHAR(".$j."_data_fim::TIMESTAMP - (EXTRACT(ISODOW FROM ".$j."_data_fim::TIMESTAMP) - 1) * INTERVAL '1 day', 'DD/MM/YY') || ' - ' || 
                         TO_CHAR(".$j."_data_fim::TIMESTAMP + (5 - EXTRACT(ISODOW FROM ".$j."_data_fim::TIMESTAMP)) * INTERVAL '1 day', 'DD/MM/YY')) AS periodo_semana,
                         '$sub_fase_lote' AS origem_view
                     FROM acompanhamento.$sub_fase_lote
