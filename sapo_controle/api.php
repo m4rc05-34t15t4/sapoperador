@@ -56,6 +56,69 @@ switch ($pedido) {
         echo json_encode(pg_fetch_all($res) ?: []);
         break;
     
+    case 'usuarios_ativos':
+        $resposta = [];
+        $sql = "SELECT DISTINCT ON (u.id)
+                u.id, 
+                u.nome, 
+                u.nome_guerra,
+                u.tipo_posto_grad_id,
+                p.nome AS patente,
+                p.nome_abrev as patente_abrev, 
+                u.ativo,
+                u.administrador,
+                l.data_login
+            FROM dgeo.usuario u
+            LEFT JOIN acompanhamento.login l ON u.id = l.usuario_id
+            LEFT JOIN dominio.tipo_posto_grad p ON u.tipo_posto_grad_id = p.code
+            WHERE u.ativo = true 
+            AND l.data_login >= now() - INTERVAL '45 days'
+            ORDER BY u.id, l.id DESC;";
+        $res = pg_query($conn, $sql);
+        $resposta['usuarios'] = pg_fetch_all($res) ?: [];
+        //echo json_encode(pg_fetch_all($res) ?: []);
+
+        //em atividade
+        $query = "SELECT * FROM ( ";
+        foreach (["s_1_execucao", "s_2_revisao_1", "s_3_correcao_1"] as $j) {
+            $q = "SELECT matviewname FROM pg_matviews WHERE schemaname = 'acompanhamento' AND matviewname ILIKE '%_subfase%' AND definition ILIKE '%".$j."_usuario%';";
+            $dados = buscar_dados($q);
+            for($i=0; $i < count($dados); $i++ ){
+                $sub_fase_lote = $dados[$i]['matviewname'];
+                $query .= "
+                    SELECT 
+                        a.id,
+                        a.lote_id,
+                        a.subfase_id,
+                        a.bloco,
+                        a.".$j."_usuario as usuario, 
+                        '$j' as tipo, 
+                        a.".$j."_data_inicio as data_inicio,
+                        a.".$j."_data_fim as data_fim,
+                        EXTRACT(WEEK FROM a.".$j."_data_inicio::TIMESTAMP) AS numero_semana,
+                        '$sub_fase_lote' AS origem_view,
+                        l.usuario_id as usuario_id 
+                    FROM acompanhamento.$sub_fase_lote a 
+                    LEFT JOIN macrocontrole.atividade l ON a.".$j."_atividade_id::integer = l.id 
+                    WHERE a.".$j."_usuario IS NOT NULL
+                    AND a.".$j."_data_inicio IS NOT NULL
+                    AND a.".$j."_data_inicio <> ''
+                    AND a.".$j."_data_inicio<> '-'
+                    AND ( a.".$j."_data_fim IS NULL OR a.".$j."_data_fim = '' OR a.".$j."_data_fim = '-' )
+                UNION ALL";
+            }
+        }
+        $query = substr($query, 0, -9);
+        $query .= ") TABELA 
+            $W
+            ORDER BY data_inicio desc, tipo, usuario";
+        $res = pg_query($conn, $query);
+        $resposta['em_atividade'] = pg_fetch_all($res) ?: [];
+        //echo json_encode($resposta ?: []);
+
+        echo json_encode($resposta ?: []);
+        break;
+    
     case 'geral_fases':
         //gerar query
         $array = [];
@@ -102,34 +165,40 @@ switch ($pedido) {
             for($i=0; $i < count($dados); $i++ ){
                 $sub_fase_lote = $dados[$i]['matviewname'];
                 $query .= "
-                    SELECT COUNT(id) AS total,
-                        lote_id,
-                        subfase_id,
-                        bloco,
-                        ".$j."_usuario as usuario, 
+                    SELECT COUNT(a.id) AS total,
+                        a.lote_id,
+                        a.subfase_id,
+                        a.bloco,
+                        a.".$j."_usuario as usuario, 
                         '$j' as tipo, 
-                        EXTRACT(WEEK FROM ".$j."_data_fim::TIMESTAMP) AS numero_semana,
-                        EXTRACT(YEAR FROM ".$j."_data_fim::TIMESTAMP) as ano,
-                        EXTRACT(MONTH FROM ".$j."_data_fim::TIMESTAMP) as mes,
-                        MIN(TO_CHAR(".$j."_data_fim::TIMESTAMP - (EXTRACT(ISODOW FROM ".$j."_data_fim::TIMESTAMP) - 1) * INTERVAL '1 day', 'DD/MM/YY') || ' - ' || 
-                        TO_CHAR(".$j."_data_fim::TIMESTAMP + (5 - EXTRACT(ISODOW FROM ".$j."_data_fim::TIMESTAMP)) * INTERVAL '1 day', 'DD/MM/YY')) AS periodo_semana,
-                        '$sub_fase_lote' AS origem_view
-                    FROM acompanhamento.$sub_fase_lote
-                    WHERE ".$j."_usuario IS NOT NULL
-                    AND ".$j."_data_fim IS NOT NULL
-                    AND ".$j."_data_fim <> ''
-                    AND ".$j."_data_fim <> '-'
-                    GROUP BY lote_id, subfase_id, bloco, usuario, numero_semana, ano, mes
+                        EXTRACT(WEEK FROM a.".$j."_data_fim::TIMESTAMP) AS numero_semana,
+                        EXTRACT(YEAR FROM a.".$j."_data_fim::TIMESTAMP) as ano,
+                        EXTRACT(MONTH FROM a.".$j."_data_fim::TIMESTAMP) as mes,
+                        MIN(TO_CHAR(a.".$j."_data_fim::TIMESTAMP - (EXTRACT(ISODOW FROM a.".$j."_data_fim::TIMESTAMP) - 1) * INTERVAL '1 day', 'DD/MM/YY') || ' - ' || 
+                        TO_CHAR(a.".$j."_data_fim::TIMESTAMP + (5 - EXTRACT(ISODOW FROM a.".$j."_data_fim::TIMESTAMP)) * INTERVAL '1 day', 'DD/MM/YY')) AS periodo_semana,
+                        '$sub_fase_lote' AS origem_view,
+                        min(l.usuario_id) as usuario_id 
+                    FROM acompanhamento.$sub_fase_lote a 
+                    LEFT JOIN macrocontrole.atividade l ON a.".$j."_atividade_id::integer = l.id 
+                    WHERE a.".$j."_usuario IS NOT NULL
+                    AND a.".$j."_data_fim IS NOT NULL
+                    AND a.".$j."_data_fim <> ''
+                    AND a.".$j."_data_fim <> '-'
+                    GROUP BY a.lote_id, a.subfase_id, a.bloco, usuario, numero_semana, ano, mes
                 UNION ALL";
             }
         }
         $query = substr($query, 0, -9);
         $query .= ") TABELA 
             $W
-            ORDER BY ano desc, NUMERO_SEMANA DESC, usuario, tipo";
+            ORDER BY ano desc, mes::integer desc, NUMERO_SEMANA DESC, usuario, tipo";
         $result = pg_query($conn, $query);
         $resposta['dados'] = pg_fetch_all($result);
         echo json_encode($resposta ?: []);
+        break;
+    
+    case 'em_atividade':
+        
         break;
 
     default:
