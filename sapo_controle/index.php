@@ -77,6 +77,38 @@
         min-width: fit-content;
         display: inline-block;
     }
+    .loading-overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.7); /* Escurece */
+        backdrop-filter: blur(8px);    /* Embaça */
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+    }
+    .subtitulo_coluna {
+        display: flex;
+        flex-direction: row;
+        align-items: center;      /* Alinha ícone e texto verticalmente */
+        justify-content: space-between; /* Texto na esquerda, ícone na direita */
+        width: 100%;              /* Garante que ocupe a largura da TH */
+        gap: 10px;
+    }
+    .texto_header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 1.1;
+        flex-grow: 1;/* Faz o texto ocupar o máximo de espaço */
+    }
+    .texto_header span:last-child{
+        font-size: 13px;
+        color: #999;
+    }
 </style>
 <body class="bg-light">
 
@@ -189,6 +221,23 @@
                 <canvas id='graficoSemanal'></canvas>
             </div>
         </div>
+
+        <table id='tabela-usuarios' class='my-5 table table-striped table-bordered table-hover table-responsive'>
+            <tr style="cursor: pointer;">
+                <th><span>Id</span> <i></i></th>
+                <th><span>Operador</span> <i></i></th>
+                <th><span>Com Atividade</span> <i></i></th>
+                <th><span>Último Login</span> <i></i></th>
+                <th><span>Execução</span> <i></i></th>
+                <th><span>Correção</span> <i></i></th>
+                <th><span>Revisão</span> <i></i></th>
+                <th><span class="subtitulo_coluna"><div class="texto_header"><span>Ganchos Recebidos</span><span>Corrigidos / Total</span></div><i></i></span></th>
+                <th><span class="subtitulo_coluna"><div class="texto_header"><span>Ganchos Aplicados</span><span>Corrigidos / Total</span></div><i></i></span></th>
+                <th><span>Total Atividades</span> <i></i></th>
+            </tr>
+            <tbody id='corpoTabela-usuarios'></tbody>
+        </table>
+
         <table id='tabela-dados' class='my-5 table table-striped table-bordered table-hover table-responsive'>
             <tr style="cursor: pointer;">
                 <th><span>Lote</span> <i></i></th>
@@ -197,6 +246,7 @@
                 <th><span>Tipo</span> <i></i></th>
                 <th><span>Operador</span> <i></i></th>
                 <th><span>Total</span> <i></i></th>
+                <th><span>Ganchos</span> <i></i></th>
                 <th><span>Período Semana</span> <i></i></th>
             </tr>
             <tbody id='corpoTabela'></tbody>
@@ -215,6 +265,19 @@
         </div>
     </footer>
 
+    <div id="meu-loader" class="loading-overlay">
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-center">
+            <div class="text-center">
+                <img src="./img/sapo_reambulador_digitando_video.gif" 
+                    alt="Sapo Digitando"  
+                    style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px; border: 1px solid black;">
+            </div>
+        </div>
+        <div class="d-flex flex-rown">
+            <div class="spinner-border text-light" style="width: 3rem; height: 3rem;" role="status"></div>
+            <h4 class="m-3">Carregando dados...</h4>
+        </div>
+    </div>
 
     <script src="js/chart.umd.min.js"></script>
     <script src="js/grafico.js<?=$v?>"></script>
