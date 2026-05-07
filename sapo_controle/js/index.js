@@ -1,4 +1,17 @@
+function ajustarAlturaHeader() {
+    // Substitua 'header' pelo seletor correto do seu cabeçalho (ex: '.navbar' ou '#meuHeader')
+    const header = document.querySelector('header'); 
+    
+    if (header) {
+        const altura = header.offsetHeight;
+        // Define a variável no root do HTML para o CSS acessar
+        document.documentElement.style.setProperty('--header-height', altura + 'px');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+
+    ajustarAlturaHeader();
 
     const inputInicio = document.querySelector('input[name="data_inicio"]');
     const inputFim = document.querySelector('input[name="data_fim"]');
@@ -10,6 +23,17 @@ document.addEventListener('DOMContentLoaded', function() {
     var ganchosAgrupados = {'execucao' : null, 'revisao' : null, 'usuarios' : {}};
 
     //FUNÇÕES
+
+    function ajustarAlturaHeader() {
+        // Substitua 'header' pelo seletor correto do seu cabeçalho (ex: '.navbar' ou '#meuHeader')
+        const header = document.querySelector('header'); 
+        
+        if (header) {
+            const altura = header.offsetHeight;
+            // Define a variável no root do HTML para o CSS acessar
+            document.documentElement.style.setProperty('--header-height', altura + 'px');
+        }
+    }
 
     function verificarCarregamento() {
         processosConcluidos++;
@@ -46,21 +70,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         // Ordenação (mantendo sua lógica de números e texto)
         const linhasOrdenadas = linhas.sort((a, b) => {
-            let valA = a.cells[colunaIdx].innerText.trim();
-            let valB = b.cells[colunaIdx].innerText.trim();
-            if(id_tabela == 'corpoTabela' && colunaIdx == 6){
-                valA = a.cells[colunaIdx].getAttribute("sort");
-                valB = b.cells[colunaIdx].getAttribute("sort");
+            // 1. Captura básica dos valores
+            let valA = a.cells[colunaIdx].innerText?.trim() || "";
+            let valB = b.cells[colunaIdx].innerText?.trim() || "";
+
+            // 2. Lógica para atributos de sort específicos
+            if (id_tabela == 'corpoTabela' && colunaIdx == 7) {
+                valA = a.cells[colunaIdx].getAttribute("sort") || "";
+                valB = b.cells[colunaIdx].getAttribute("sort") || "";
             }
-            // Se for a coluna de data (formato 2026-03-25) ou campo de sort especial
-            else if ((id_tabela === 'corpoTabela-usuarios' && (colunaIdx == 2 || colunaIdx == 3 )) && valA.includes('-')) {
+
+            // 3. Lógica para Datas (ISO: YYYY-MM-DD)
+            if ((id_tabela === 'corpoTabela-usuarios' && (colunaIdx == 2 || colunaIdx == 3)) && valA.includes('-')) {
                 return ordemAscendente 
                     ? valA.localeCompare(valB) 
                     : valB.localeCompare(valA);
             }
-            const numA = parseFloat(valA.replace(',', '.'));
-            const numB = parseFloat(valB.replace(',', '.'));
-            if (!isNaN(numA) && !isNaN(numB)) return ordemAscendente ? numA - numB : numB - numA;
+
+            // 4. Lógica para ganchos
+            if (id_tabela === 'corpoTabela-usuarios' && (colunaIdx == 7 || colunaIdx == 8)) {
+                valA = a.cells[colunaIdx].getAttribute("sort") || "";
+                valB = b.cells[colunaIdx].getAttribute("sort") || "";
+            }
+
+            // 5. Lógica para Números
+            // Remove pontos de milhar e troca vírgula por ponto para o parseFloat funcionar
+            const numA = parseFloat(valA.replace(/\./g, '').replace(',', '.'));
+            const numB = parseFloat(valB.replace(/\./g, '').replace(',', '.'));
+
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return ordemAscendente ? numA - numB : numB - numA;
+            }
+
+            // 6. Fallback para Texto (localeCompare) - Garantindo que nunca seja null
             return ordemAscendente 
                 ? valA.localeCompare(valB, 'pt-BR', { numeric: true }) 
                 : valB.localeCompare(valA, 'pt-BR', { numeric: true });
@@ -248,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 refExecutores[item.revisor] += tot_pontos;
             }
             ganchosAgrupados['usuarios'][item.executor]['ganchos_recebidos'] += tot_pontos;
-            ganchosAgrupados['usuarios'][item.executor]['ganchos_recebidos_corrigidos'] = tot_pontos_corrigidos;
+            ganchosAgrupados['usuarios'][item.executor]['ganchos_recebidos_corrigidos'] += tot_pontos_corrigidos;
             return acc;
         }, {});
         ganchosAgrupados['execucao'] = ganchosAgrupadosExecucao;
@@ -271,8 +313,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             const tot_pontos = parseInt(item.total_pontos || 0);
             const tot_pontos_corrigidos = (item.corrigido === true || item.corrigido === "t") ? tot_pontos : 0;
-            acc[chave].TotalPontos += parseInt(item.total_pontos || 0);
-            acc[chave].TotalCorrigidos += (item.corrigido === true || item.corrigido === "t") ? parseInt(item.total_pontos || 0) : 0;
+            acc[chave].TotalPontos += tot_pontos;
+            acc[chave].TotalCorrigidos += tot_pontos_corrigidos;
             acc[chave].Executores.push({
                 executor: item.executor,
                 ganchos: item.total_pontos,
@@ -291,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ganchos_recebidos_corrigidos: 0, 
                     ganchos_criados: 0, 
                     ganchos_criados_corrigidos: 0, 
-                    executores: {} // O problema estava aqui!
+                    executores: {}
                 };
             } 
             if (!ganchosAgrupados['usuarios'][item.revisor].executores) ganchosAgrupados['usuarios'][item.revisor].executores = {};
@@ -301,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 refExecutores[item.executor] += tot_pontos;
             }
             ganchosAgrupados['usuarios'][item.revisor]['ganchos_criados'] += tot_pontos;
-            ganchosAgrupados['usuarios'][item.revisor]['ganchos_criados_corrigidos'] = tot_pontos_corrigidos;
+            ganchosAgrupados['usuarios'][item.revisor]['ganchos_criados_corrigidos'] += tot_pontos_corrigidos;
             return acc;
         }, {});
         ganchosAgrupados['revisao'] = ganchosAgrupadosRevisao;
@@ -383,8 +425,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${totais?.[item.id]?.execucao || '-'}</td>
                 <td>${totais?.[item.id]?.correcao || '-'}</td>
                 <td>${totais?.[item.id]?.revisao || '-'}</td>
-                <td title="${title_gancho_rec}">${gancho_rec}</td>
-                <td title="${title_gancho_cri}">${gancho_apl}</td>
+                <td title="${title_gancho_rec}" sort="${ganchos_recebidos}">${gancho_rec}</td>
+                <td title="${title_gancho_cri}" sort="${ganchos_criados}">${gancho_apl}</td>
                 <td>${totais?.[item.id]?.total || '-'}</td>
             `;
             corpoTabela.appendChild(tr);
@@ -420,6 +462,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const observer = new ResizeObserver(() => ajustarPaddingBody());
         observer.observe(header);
     }
+
+    // Executa se a janela for redimensionada (importante para responsividade)
+    window.addEventListener('resize', ajustarAlturaHeader);
 
     document.querySelectorAll('#formFiltros select, #formFiltros input[type="date"]').forEach(campo => {
         campo.addEventListener('change', function() {
