@@ -270,7 +270,7 @@ switch ($pedido) {
         $$ LANGUAGE plpgsql;
 
         SELECT criar_conexao_pit('pit_2026_topo_25k');
-        SELECT criar_conexao_pit('outro_banco_25k', p_schema_local := 'reserva');
+        SELECT criar_conexao_pit('pit_2026_mgcp', p_schema_remoto := 'mgcp', p_tabela_remota := 'aux_revisao_a');
         */
         
         //filtros
@@ -297,7 +297,29 @@ switch ($pedido) {
             todos_os_pontos AS (
                 SELECT *, 'pit_2026_topo_100k' as banco_ref FROM pit.pit_2026_topo_100k_aux_revisao_p
                 UNION ALL
+                SELECT *, 'pit_2026_topo_100k' as banco_ref FROM pit.pit_2026_topo_100k_aux_revisao_l
+                UNION ALL
+                SELECT *, 'pit_2026_topo_100k' as banco_ref FROM pit.pit_2026_topo_100k_aux_revisao_a
+                UNION ALL
                 SELECT *, 'pit_2026_topo_25k' as banco_ref FROM pit.pit_2026_topo_25k_aux_revisao_p
+                UNION ALL
+                SELECT *, 'pit_2026_topo_25k' as banco_ref FROM pit.pit_2026_topo_25k_aux_revisao_l
+                UNION ALL
+                SELECT *, 'pit_2026_topo_25k' as banco_ref FROM pit.pit_2026_topo_25k_aux_revisao_a
+                /*
+                UNION ALL
+                SELECT *, 'pit_2026_orto_250k' as banco_ref FROM pit.pit_2026_orto_250k_aux_revisao_p
+                UNION ALL
+                SELECT *, 'pit_2026_orto_250k' as banco_ref FROM pit.pit_2026_orto_250k_aux_revisao_l
+                UNION ALL
+                SELECT *, 'pit_2026_orto_250k' as banco_ref FROM pit.pit_2026_orto_250k_aux_revisao_a
+                UNION ALL
+                SELECT *, 'pit_2026_mgcp' as banco_ref FROM pit.pit_2026_mgcp_aux_revisao_p
+                UNION ALL
+                SELECT *, 'pit_2026_mgcp' as banco_ref FROM pit.pit_2026_mgcp_aux_revisao_l
+                UNION ALL
+                SELECT *, 'pit_2026_mgcp' as banco_ref FROM pit.pit_2026_mgcp_aux_revisao_a
+                */
             )
             SELECT * FROM (
                 SELECT 

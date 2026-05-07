@@ -109,11 +109,21 @@
         font-size: 13px;
         color: #999;
     }
+    #tabela-usuarios thead th, #tabela-dados thead th {
+        position: sticky;
+        top: var(--header-height, 100px); /* Usa a variável, ou 0px se não existir */
+        z-index: 10; /* Garante que fique por cima das linhas */
+        box-shadow: inset 0 -1px 0 #dee2e6; /* Mantém a borda inferior visível */
+    }
+    header {
+        background: radial-gradient(circle, #f1f8e9 0%, #c8e6c9 60%, #a5d6a7 100%);
+        border-bottom: 2px solid #a5d6a7;
+    }
 </style>
 <body class="bg-light">
 
     <!-- Container Principal do Cabeçalho -->
-    <header class="fixed-top container-fluid border-bottom shadow-sm p-2 mb-2 rounded-3 bg-white">
+    <header class="fixed-top container-fluid shadow-sm p-2 mb-2">
         <div class="d-flex flex-column flex-md-row align-items-center justify-content-center">
             <!-- Lado Esquerdo: O GIF Estilizado -->
             <div class="text-center">
@@ -223,32 +233,36 @@
         </div>
 
         <table id='tabela-usuarios' class='my-5 table table-striped table-bordered table-hover table-responsive'>
-            <tr style="cursor: pointer;">
-                <th><span>Id</span> <i></i></th>
-                <th><span>Operador</span> <i></i></th>
-                <th><span>Com Atividade</span> <i></i></th>
-                <th><span>Último Login</span> <i></i></th>
-                <th><span>Execução</span> <i></i></th>
-                <th><span>Correção</span> <i></i></th>
-                <th><span>Revisão</span> <i></i></th>
-                <th><span class="subtitulo_coluna"><div class="texto_header"><span>Ganchos Recebidos</span><span>Corrigidos / Total</span></div><i></i></span></th>
-                <th><span class="subtitulo_coluna"><div class="texto_header"><span>Ganchos Aplicados</span><span>Corrigidos / Total</span></div><i></i></span></th>
-                <th><span>Total Atividades</span> <i></i></th>
-            </tr>
+            <thead>
+                <tr style="cursor: pointer;">
+                    <th><span>Id</span> <i></i></th>
+                    <th><span>Operador</span> <i></i></th>
+                    <th><span>Com Atividade</span> <i></i></th>
+                    <th><span>Último Login</span> <i></i></th>
+                    <th><span>Execução</span> <i></i></th>
+                    <th><span>Correção</span> <i></i></th>
+                    <th><span>Revisão</span> <i></i></th>
+                    <th><span class="subtitulo_coluna"><div class="texto_header"><span>Ganchos Recebidos</span><span>Corrigidos / Total</span></div><i></i></span></th>
+                    <th><span class="subtitulo_coluna"><div class="texto_header"><span>Ganchos Aplicados</span><span>Corrigidos / Total</span></div><i></i></span></th>
+                    <th><span>Total Atividades</span> <i></i></th>
+                </tr>
+            </thead>
             <tbody id='corpoTabela-usuarios'></tbody>
         </table>
 
         <table id='tabela-dados' class='my-5 table table-striped table-bordered table-hover table-responsive'>
-            <tr style="cursor: pointer;">
-                <th><span>Lote</span> <i></i></th>
-                <th><span>Subfase</span> <i></i></th>
-                <th><span>Bloco</span> <i></i></th>
-                <th><span>Tipo</span> <i></i></th>
-                <th><span>Operador</span> <i></i></th>
-                <th><span>Total</span> <i></i></th>
-                <th><span>Ganchos</span> <i></i></th>
-                <th><span>Período Semana</span> <i></i></th>
-            </tr>
+            <thead>
+                <tr style="cursor: pointer;">
+                    <th><span>Lote</span> <i></i></th>
+                    <th><span>Subfase</span> <i></i></th>
+                    <th><span>Bloco</span> <i></i></th>
+                    <th><span>Tipo</span> <i></i></th>
+                    <th><span>Operador</span> <i></i></th>
+                    <th><span>Total</span> <i></i></th>
+                    <th><span>Ganchos</span> <i></i></th>
+                    <th><span>Período Semana</span> <i></i></th>
+                </tr>
+            </thead>
             <tbody id='corpoTabela'></tbody>
         </table>
     </div>
