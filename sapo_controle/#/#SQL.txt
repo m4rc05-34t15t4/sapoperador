@@ -1,0 +1,189 @@
+SELECT id, bloco, s_2_revisao_1_usuario, s_2_revisao_1_situacao, s_1_execucao_usuario, dado_producao geom from acompanhamento.lote_20_subfase_78 where s_2_revisao_1_usuario = '3º Sgt Caio Cesar' and s_2_revisao_1_situacao = 'Em execução' 
+
+
+
+
+banco sap e banco pit_....
+
+
+CREATE EXTENSION IF NOT EXISTS postgres_fdw;
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
+
+CREATE SERVER server_pit_2026_topo_25k
+FOREIGN DATA WRAPPER postgres_fdw
+OPTIONS (host '10.46.136.21', dbname 'pit_2026_topo_25k', port '5432');
+
+CREATE USER MAPPING FOR current_user 
+SERVER pit_2026_topo_25k -- Usando o nome que você definiu
+OPTIONS (user 'seu_usuario', password 'sua_senha');
+
+CREATE SCHEMA pit;
+
+IMPORT FOREIGN SCHEMA edgv 
+LIMIT TO (aux_revisao_p) 
+FROM SERVER pit_2026_topo_25k 
+INTO pit_edgv;
+
+
+SELECT 
+    p.subfase_id, p.corrigido, p.operador_criacao, p.data_criacao, p.operador_atualizacao, p.data_atualizacao, p.geom, 
+    pol.id AS poligono_id, pol.bloco, pol.s_2_revisao_1_usuario, pol.s_2_revisao_1_situacao, pol.s_1_execucao_usuario, pol.dado_producao, pol.geom
+FROM acompanhamento.lote_20_subfase_78 pol -- Polígonos (4326)
+JOIN pit.aux_revisao_p p                   -- Pontos (4674)
+    ON ST_Intersects(ST_Transform(p.geom, 4326), pol.geom) -- Converte o ponto para 4326
+WHERE 
+    pol.s_2_revisao_1_usuario = '3º Sgt Caio Cesar' 
+    AND pol.s_2_revisao_1_situacao = 'Em execução';
+--AND operador_criacao = 'sap_souza_mendes'
+--AND pol.id = 40974;
+
+
+
+CREATE OR REPLACE FUNCTION criar_conexao_pit(
+    p_banco TEXT,
+    p_host TEXT DEFAULT '10.46.136.21',
+    p_port TEXT DEFAULT '5432',
+    p_user TEXT DEFAULT 'postgres',
+    p_pass TEXT DEFAULT 'adminsap',
+    p_schema_remoto TEXT DEFAULT 'edgv',
+    p_tabela_remota TEXT DEFAULT 'aux_revisao_p',
+    p_schema_local TEXT DEFAULT 'pit'
+)
+RETURNS TEXT AS $$
+DECLARE
+    v_tabela_nova TEXT;
+BEGIN
+    v_tabela_nova := p_banco || '_' || p_tabela_remota;
+
+    EXECUTE 'CREATE EXTENSION IF NOT EXISTS postgres_fdw';
+
+    EXECUTE format('CREATE SERVER IF NOT EXISTS server_%I 
+                    FOREIGN DATA WRAPPER postgres_fdw 
+                    OPTIONS (host %L, dbname %L, port %L)', 
+                    p_banco, p_host, p_banco, p_port);
+
+    EXECUTE format('DROP USER MAPPING IF EXISTS FOR current_user SERVER server_%I', p_banco);
+    EXECUTE format('CREATE USER MAPPING FOR current_user 
+                    SERVER server_%I 
+                    OPTIONS (user %L, password %L)', 
+                    p_banco, p_user, p_pass);
+
+    EXECUTE format('CREATE SCHEMA IF NOT EXISTS %I', p_schema_local);
+
+    -- LIMPEZA CRÍTICA: Remove tanto o nome novo quanto o original para evitar conflito no IMPORT
+    EXECUTE format('DROP FOREIGN TABLE IF EXISTS %I.%I', p_schema_local, v_tabela_nova);
+    EXECUTE format('DROP FOREIGN TABLE IF EXISTS %I.%I', p_schema_local, p_tabela_remota);
+
+    -- Agora o IMPORT passará sem erros
+    EXECUTE format('IMPORT FOREIGN SCHEMA %I 
+                    LIMIT TO (%I) 
+                    FROM SERVER server_%I 
+                    INTO %I', 
+                    p_schema_remoto, p_tabela_remota, p_banco, p_schema_local);
+    
+    -- Renomeia para o formato desejado
+    EXECUTE format('ALTER FOREIGN TABLE %I.%I RENAME TO %I', 
+                    p_schema_local, p_tabela_remota, v_tabela_nova);
+
+    RETURN format('Sucesso! Tabela disponível em: %s.%s', p_schema_local, v_tabela_nova);
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+SELECT criar_conexao_pit('pit_2026_topo_25k');
+
+SELECT criar_conexao_pit('outro_banco_25k', p_schema_local := 'reserva');
+
+
+
+SELECT 
+	id as id_unidade, 
+	lote_id, 
+	subfase_id, 
+	bloco, 
+	REPLACE(dado_producao, '10.46.136.21:5432/', '') as banco, 
+	s_1_execucao_usuario as executor, 
+	s_1_execucao_data_fim::timestamp as execucao_fim,
+	s_2_revisao_1_usuario as revisor, 
+	s_2_revisao_1_data_inicio::timestamp as revisao_inicio,
+	s_2_revisao_1_data_fim::timestamp as revisao_fim,
+	geom as poligono
+FROM acompanhamento.lote_20_subfase_78 
+
+
+
+
+--CREATE EXTENSION IF NOT EXISTS unaccent;
+
+WITH lista_postos AS (
+    -- Gera o padrão de regex uma única vez
+    SELECT '\m(' || string_agg(nome_abrev, '|') || ')\M' as padrao 
+    FROM dominio.tipo_posto_grad
+),
+todos_os_pontos AS (
+    SELECT *, 'pit_2026_topo_100k' as banco_ref FROM pit.pit_2026_topo_100k_aux_revisao_p
+    UNION ALL
+    SELECT *, 'pit_2026_topo_25k' as banco_ref FROM pit.pit_2026_topo_25k_aux_revisao_p
+)
+SELECT * FROM (
+SELECT 
+    pol.id as id_unidade, 
+    pol.lote_id, 
+    pol.subfase_id, 
+    pol.bloco, 
+    REPLACE(pol.dado_producao, '10.46.136.21:5432/', '') as banco, 
+    replace(
+        lower(
+			unaccent(
+				trim(
+					regexp_replace(
+						pol.s_2_revisao_1_usuario, 
+						(SELECT padrao FROM lista_postos), -- Usa o padrão do CTE
+						'sap', 
+						'gi'
+					)
+				)
+			)
+        ), 
+        ' ', 
+        '_'
+    ) AS nome_gancho,
+    pol.s_1_execucao_usuario as executor, 
+    max(pol.s_1_execucao_data_fim::timestamp) as execucao_fim, 
+    pol.s_2_revisao_1_usuario as revisor, 
+    min(pol.s_2_revisao_1_data_inicio::timestamp) as revisao_inicio, 
+    max(pol.s_2_revisao_1_data_fim::timestamp) as revisao_fim, 
+    pol.geom as poligono, 
+    COUNT(p.id) as total_pontos,
+    p.operador_criacao,
+    p.corrigido = 1 as corrigido 
+FROM acompanhamento.lote_20_subfase_78 pol
+LEFT JOIN todos_os_pontos p 
+    ON ST_Intersects(ST_Transform(p.geom, 4326), pol.geom)
+    AND p.banco_ref = REPLACE(pol.dado_producao, '10.46.136.21:5432/', '')
+WHERE 
+    pol.s_1_execucao_usuario IS NOT NULL AND 
+    pol.s_2_revisao_1_usuario IS NOT NULL AND
+	pol.s_2_revisao_1_data_inicio::timestamp <= p.data_criacao::timestamp AND
+	pol.s_2_revisao_1_data_fim::timestamp >= p.data_criacao::timestamp 
+GROUP BY
+    pol.id,
+    pol.lote_id, 
+    pol.subfase_id,
+    pol.bloco, 
+    banco,
+    pol.s_1_execucao_usuario, -- Usar o nome original da coluna no GROUP BY
+    revisor,
+    poligono,
+    p.operador_criacao,
+    p.corrigido = 1
+ORDER BY executor, total_pontos DESC
+) TABELA
+WHERE OPERADOR_CRIACAO = NOME_GANCHO
+
+
+
+
