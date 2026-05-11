@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //FUNÇÕES
 
+    const normalizar = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
     function calcularMediana(numeros) {
         // 1. Ordenar o array de forma numérica (Crescente)
         const ordenados = [...numeros].sort((a, b) => a - b);
@@ -144,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function ordenarTabela(colunaIdx, id_tabela='corpoTabela') {
+        console.log(colunaIdx, id_tabela);
         const tabela = document.getElementById(id_tabela);
         const linhas = Array.from(tabela.rows);
         // Lógica de inversão
@@ -160,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let valB = b.cells[colunaIdx].innerText?.trim() || "";
 
             // 2. Lógica para atributos de sort específicos
-            if (id_tabela == 'corpoTabela' && colunaIdx == 7) {
+            if (id_tabela == 'corpoTabela' && (colunaIdx == 4 || colunaIdx == 7) ) {
                 valA = a.cells[colunaIdx].getAttribute("sort") || "";
                 valB = b.cells[colunaIdx].getAttribute("sort") || "";
             }
@@ -188,9 +191,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // 6. Fallback para Texto (localeCompare) - Garantindo que nunca seja null
+            const va = valA.replace(/^\s+|\s+$/g, '');
+            const vb = valB.replace(/^\s+|\s+$/g, '');
             return ordemAscendente 
-                ? valA.localeCompare(valB, 'pt-BR', { numeric: true }) 
-                : valB.localeCompare(valA, 'pt-BR', { numeric: true });
+                ? va.localeCompare(vb, 'pt-BR') 
+                : vb.localeCompare(va, 'pt-BR');
         });
         tabela.append(...linhasOrdenadas);
         //atualizarIcones(colunaIdx, id_tabela, ordemAscendente);
@@ -316,12 +321,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const dicionario = ganchosAgrupados?.[tipoFormatado]?.[seletor]?.['Title'];
             const title = dicionario ? Object.entries(dicionario).map(([key, value]) => `${key}: ${value}`).join(', ') : '-';
             const back_cor = {"execucao" : cor_execucao, "correcao" : cor_correcao, "revisao" : cor_revisao};
+            const nome_guerra_adp = linha.usuario.replace("º ", '');
             tr.innerHTML = `
                 <td style="vertical-align: middle;">(${linha.lote_id}) ${resposta.lote[linha.lote_id]['nome_abrev']}</td> 
                 <td style="vertical-align: middle;">(${linha.subfase_id}) ${resposta.subfase[linha.subfase_id]['nome']}</td>
                 <td style="vertical-align: middle;">${linha.bloco}</td>
                 <td style="vertical-align: middle; background-color: ${back_cor[tipoFormatado]};">${tipoFormatado}</td>
-                <td style="vertical-align: middle;">${linha.usuario}</td>
+                <td style="vertical-align: middle;" sort="${nome_guerra_adp.slice(nome_guerra_adp.indexOf(" ") + 1)}">${linha.usuario}</td>
                 <td style="vertical-align: middle; text-align: center;" tipo_mediana="${tipoFormatado}">${linha.total}</td>
                 <td style="vertical-align: middle; text-align: center;" title="${title}" tipo_mediana="${tipoFormatado}">${qtd_ganchos}</td>
                 <td style="vertical-align: middle; text-align: center;" sort="${sort_periodo_valor(linha)}">(${linha.numero_semana}) ${linha.periodo_semana}</td>
