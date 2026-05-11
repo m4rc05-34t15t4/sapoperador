@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td style="vertical-align: middle;">(${linha.lote_id}) ${resposta.lote[linha.lote_id]['nome_abrev']}</td> 
                 <td style="vertical-align: middle;">(${linha.subfase_id}) ${resposta.subfase[linha.subfase_id]['nome']}</td>
                 <td style="vertical-align: middle;">${linha.bloco}</td>
-                <td style="vertical-align: middle; background-color: ${back_cor[tipoFormatado]};">${tipoFormatado}</td>
+                <td style="vertical-align: middle; background-image: linear-gradient(to top, ${back_cor[tipoFormatado]} 25%, transparent 25%);">${tipoFormatado}</td>
                 <td style="vertical-align: middle;" sort="${nome_guerra_adp.slice(nome_guerra_adp.indexOf(" ") + 1)}">${linha.usuario}</td>
                 <td style="vertical-align: middle; text-align: center;" tipo_mediana="${tipoFormatado}">${linha.total}</td>
                 <td style="vertical-align: middle; text-align: center;" title="${title}" tipo_mediana="${tipoFormatado}">${qtd_ganchos}</td>
